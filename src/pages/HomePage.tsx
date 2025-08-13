@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ScoreLogo from '../components/ScoreLogo';
 import { Link } from 'react-router-dom';
+import scorePhone from '../assets/score_phone.png';
 
 const HomePage = () => {
   const [currentTitle, setCurrentTitle] = useState(0);
@@ -30,7 +31,7 @@ const HomePage = () => {
 
       <div className="flex-1 flex">
         <div className="w-1/2 flex flex-col justify-center px-16">
-          <div className="h-20"> {/* Fixed height container for smooth transitions */}
+          <div className="h-20">
             <AnimatePresence mode="wait">
               <motion.h1
                 key={currentTitle}
@@ -62,14 +63,14 @@ const HomePage = () => {
 
         <div className="w-1/2 flex items-center justify-center">
           <motion.img
-            src="/src/assets/score_phone.png"
+            src={scorePhone}
             alt="Score App Preview"
             className="w-[400px]"
             initial={{ opacity: 0, y: 20 }}
             animate={{
               opacity: 0.5,
               y: 0,
-              rotate: [30, -15, 30] // Animation de rotation : 30° ➝ -15° ➝ 30°
+              rotate: [30, -15, 30]
             }}
             transition={{
               delay: 0.5,
