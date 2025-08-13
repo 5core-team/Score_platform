@@ -1,10 +1,11 @@
 import React from 'react';
+import scoreLogo from '../assets/score_logoo.png';
 
 interface ScoreLogoProps {
   variant?: 'horizontal' | 'vertical';
   size?: 'small' | 'medium' | 'xlarge';
   className?: string;
-  fixed?: boolean; // optionnel : logo en position absolue/fixe
+  fixed?: boolean;
 }
 
 const ScoreLogo: React.FC<ScoreLogoProps> = ({
@@ -14,23 +15,23 @@ const ScoreLogo: React.FC<ScoreLogoProps> = ({
   fixed = false
 }) => {
   const sizes = {
-  small: {
-    width: variant === 'horizontal' ? '120px' : '80px',
-    height: variant === 'horizontal' ? '30px' : '80px'
-  },
-  medium: {
-    width: variant === 'horizontal' ? '160px' : '120px',
-    height: variant === 'horizontal' ? '40px' : '120px'
-  },
-  large: {
-    width: variant === 'horizontal' ? '200px' : '160px',
-    height: variant === 'horizontal' ? '60px' : '160px'
-  },
-  xlarge: {
-    width: variant === 'horizontal' ? '340px' : '300px',
-    height: variant === 'horizontal' ? '120px' : '280px'
-  }
-};
+    small: {
+      width: variant === 'horizontal' ? '120px' : '80px',
+      height: variant === 'horizontal' ? '30px' : '80px'
+    },
+    medium: {
+      width: variant === 'horizontal' ? '160px' : '120px',
+      height: variant === 'horizontal' ? '40px' : '120px'
+    },
+    large: {
+      width: variant === 'horizontal' ? '200px' : '160px',
+      height: variant === 'horizontal' ? '60px' : '160px'
+    },
+    xlarge: {
+      width: variant === 'horizontal' ? '340px' : '300px',
+      height: variant === 'horizontal' ? '120px' : '280px'
+    }
+  };
 
   const positionStyle = fixed
     ? {
@@ -43,7 +44,7 @@ const ScoreLogo: React.FC<ScoreLogoProps> = ({
 
   return (
     <img
-      src="/src/assets/score_logoo.png"
+      src={scoreLogo}
       alt="Score Logo"
       style={{ ...sizes[size], ...positionStyle }}
       className={`object-contain ${className}`}
