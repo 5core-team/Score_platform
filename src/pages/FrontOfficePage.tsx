@@ -3,6 +3,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import { Plus, Search, AlertTriangle, Clipboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 interface FrontOffice {
   id: number;
@@ -58,20 +59,11 @@ const FrontOfficePage = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/country/create-front-office/', {
-        method: 'POST',
+      const { data } = await api.post('/country/create-front-office/', formData, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la création du front office');
-      }
 
       setShowAddForm(false);
       setFormData({
@@ -87,7 +79,8 @@ const FrontOfficePage = () => {
       setGeneratedPassword(data.password || '');
 
     } catch (err: any) {
-      setError(err.message || 'Erreur inconnue');
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -3,6 +3,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import { Plus, Search, AlertTriangle, Loader, Calendar, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 interface CountryRepresentative {
   id: number;
@@ -61,18 +62,12 @@ const CountryRepresentativesPage = () => {
         throw new Error("Session expirée ou non connecté");
       }
       
-      const response = await fetch('http://127.0.0.1:8000/score/countries/', {
+      const { data } = await api.get('/score/countries/', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        // Eviter la mise en cache du navigateur
-        cache: 'no-store'
-      });            
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
-      }
+      });
       
-      const data = await response.json();      
       const updatedRepresentatives = data.map((rep: CountryRepresentative) => {
         if (rep.subscription_end_date) {
           return {
@@ -111,36 +106,21 @@ const CountryRepresentativesPage = () => {
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/score/add-country/', {
-        method: 'POST',
+      const { data } = await api.post('/score/add-country/', formData, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur HTTP ${response.status}: ${errorText || response.statusText}`);
-      }
-
-      const responseBody = await response.text();      
-      let newRepresentative;
-      try {
-        newRepresentative = JSON.parse(responseBody);
-      } catch (parseError) {
-        throw new Error("Format de réponse invalide du serveur");
-      }
       
       setShowAddForm(false);
       setFormData({ name: '', country_code: '', phone_code: '', email: '' });
-      setSuccess(`Le représentant pour ${newRepresentative.name} a été ajouté avec succès ! 
-      Mot de passe généré : ${newRepresentative.password}`);
+      setSuccess(`Le représentant pour ${data.name} a été ajouté avec succès ! 
+      Mot de passe généré : ${data.password}`);
 
       await refreshRepresentatives();      
-    } catch (err) {
-      setError(`Une erreur est survenue lors de l'ajout du représentant: ${err.message || 'Erreur inconnue'}`);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
+      setError(`Une erreur est survenue lors de l'ajout du représentant: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -162,36 +142,15 @@ const CountryRepresentativesPage = () => {
       }
 
       console.log('💳 Envoi des données d\'abonnement:', subscriptionData);
-      const response = await fetch('http://127.0.0.1:8000/score/subscribe/', {
-        method: 'POST',
+      const { data, status } = await api.post('/score/subscribe/', subscriptionData, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(subscriptionData),
       });
 
-      console.log('📡 Réponse du serveur pour abonnement:');
-      console.log('  - Status:', response.status);
-      console.log('  - Status Text:', response.statusText);
-      console.log('  - Headers:', Object.fromEntries(response.headers.entries()));
+      console.log('📡 Réponse du serveur pour abonnement:', data);
 
-      // Lire le corps de la réponse
-      const responseBody = await response.text();
-      console.log('📋 Corps de réponse d\'abonnement:', responseBody);
-
-      let subscriptionResponse;
-      try {
-        subscriptionResponse = JSON.parse(responseBody);
-        console.log('📊 Données d\'abonnement parsées:', subscriptionResponse);
-      } catch (parseError) {
-        subscriptionResponse = { message: responseBody };
-      }
-
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP ${response.status}: ${responseBody || response.statusText}`);
-      }
-      if (response.status === 201) {        
+      if (status === 201) {        
         setShowSubscribeModal(false);
         setCurrentRepresentative(null);
         setSuccess(`Abonnement ${subscriptionData.plan === 'monthly' ? 'mensuel' : 'annuel'} 
@@ -207,8 +166,9 @@ const CountryRepresentativesPage = () => {
         await refreshRepresentatives();
       }
       
-    } catch (err) {
-      setError(`Une erreur est survenue lors de la souscription: ${err.message || 'Erreur inconnue'}`);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
+      setError(`Une erreur est survenue lors de la souscription: ${errorMessage}`);
     } finally {
       setIsSubscribing(false);
     }
@@ -239,18 +199,15 @@ const CountryRepresentativesPage = () => {
       if (!currentRep) return;
 
       const newStatus = currentRep.status === 'active' ? 'inactive' : 'active';
-      const response = await fetch(`http://127.0.0.1:8000/score/update-country-status/${id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur lors de la mise à jour du statut: ${errorText || response.statusText}`);
-      }
+      await api.put(`/score/update-country-status/${id}/`, 
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setRepresentatives(representatives.map(rep =>
         rep.id === id ? { ...rep, status: newStatus } : rep
       ));
@@ -258,9 +215,10 @@ const CountryRepresentativesPage = () => {
       setSuccess(`Le statut du représentant pour ${currentRep.name} a été mis à jour avec succès!`);
       await refreshRepresentatives();
       
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Erreur lors de la modification du statut:", err);
-      setError(`Une erreur est survenue lors de la modification du statut: ${err.message || 'Erreur inconnue'}`);
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
+      setError(`Une erreur est survenue lors de la modification du statut: ${errorMessage}`);
     }
   };
 

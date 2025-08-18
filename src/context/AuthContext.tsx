@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import api from '../services/api';
 
 interface User {
   id: string;
@@ -50,24 +51,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!refreshToken) return null;
 
     try {
-      const response = await fetch('http://192.168.1.15:8000/score/refresh-token/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refresh_token: refreshToken }),
+      const { data } = await api.post('/score/refresh-token/', {
+        refresh_token: refreshToken
       });
 
-      if (!response.ok) {
-        if (response.status === 401) logout();
-        return null;
-      }
-
-      const data: { access_token: string } = await response.json();
       setAccessToken(data.access_token);
       localStorage.setItem('accessToken', data.access_token);
       return data.access_token;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 401) logout();
       console.error('Erreur lors du rafraîchissement du token:', error);
       return null;
     }
@@ -91,15 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/score/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const { data }: { data: TokenResponse } = await api.post('/score/login/', {
+        email,
+        password
       });
-
-      if (!response.ok) throw new Error(await response.text());
-
-      const data: TokenResponse = await response.json();
 
       if (!data.access_token || !data.refresh_token || !data.type_user) {
         throw new Error('Réponse invalide du serveur');
@@ -149,23 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = await getAccessToken();
       if (!token) throw new Error("Token d'accès non disponible");
 
-      const response = await fetch('http://127.0.0.1:8000/change-password/', {
-        method: 'POST',
+      await api.post('/change-password/', {
+        old_password: oldPassword,
+        new_password: newPassword
+      }, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          old_password: oldPassword,
-          new_password: newPassword,
-        }),
+          Authorization: `Bearer ${token}`
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Erreur changement mot de passe:', errorData);
-        throw new Error(errorData.message || 'Échec du changement de mot de passe');
-      }
     } catch (error) {
       console.error('Erreur changement mot de passe:', error);
       throw error;

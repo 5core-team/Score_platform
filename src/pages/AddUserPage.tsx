@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layouts/DashboardLayout';
 import { UserPlus, User, Shield, Scale, MapPin, Plus, AlertTriangle, Copy, CheckCircle, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 interface Zone {
   id: number;
@@ -15,6 +17,7 @@ interface SuccessResponse {
 }
 
 const AddUserPage = () => {
+  const { getAccessToken } = useAuth();
   const [selectedAccountType, setSelectedAccountType] = useState('');
   const [zones, setZones] = useState<Zone[]>([]);
   const [showZoneForm, setShowZoneForm] = useState(false);
@@ -58,21 +61,25 @@ const AddUserPage = () => {
 
   const fetchZones = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) return;
+      const token = await getAccessToken();
+      if (!token) {
+        console.error('Token d\'accès non disponible');
+        return;
+      }
 
-      const response = await fetch('http://127.0.0.1:8000/country/get-zones/', {
+      const { data } = await api.get('/country/get-zones/', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setZones(data.zones);
-      }
-    } catch (error) {
+      setZones(data.zones);
+    } catch (error: any) {
       console.error('Erreur lors du chargement des zones:', error);
+      if (error.response?.status === 401) {
+        // Le hook useAuth gère automatiquement la déconnexion
+        console.log('Token expiré, redirection vers la connexion...');
+      }
     }
   };
 
@@ -83,35 +90,32 @@ const AddUserPage = () => {
     setIsSubmittingZone(true);
 
     try {
-      const token = localStorage.getItem('accessToken');
-
+      const token = await getAccessToken();
       if (!token) {
         setZoneError('Token d\'authentification manquant. Veuillez vous reconnecter.');
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/country/add-zone/', {
-        method: 'POST',
+      const { data } = await api.post('/country/add-zone/', zoneFormData, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(zoneFormData)
+        }
       });
 
-      if (response.ok) {
-        const newZone = await response.json();
-        setZones(prev => [...prev, newZone]);
-        setZoneFormData({ name: '' });
-        setShowZoneForm(false);
-        setZoneSuccess('Zone créée avec succès !');
-        fetchZones();
+      setZones(prev => [...prev, data]);
+      setZoneFormData({ name: '' });
+      setShowZoneForm(false);
+      setZoneSuccess('Zone créée avec succès !');
+      fetchZones();
+    } catch (error: any) {
+      console.error('Erreur lors de la création de la zone:', error);
+      
+      if (error.response?.status === 401) {
+        setZoneError('Session expirée. Veuillez vous reconnecter.');
       } else {
-        const error = await response.json();
-        setZoneError(error.message || 'Erreur lors de la création de la zone');
+        const errorMsg = error.response?.data?.message || error.response?.data?.detail || 'Erreur lors de la création de la zone';
+        setZoneError(errorMsg);
       }
-    } catch (error) {
-      setZoneError('Erreur de connexion au serveur');
     } finally {
       setIsSubmittingZone(false);
     }
@@ -181,41 +185,33 @@ const AddUserPage = () => {
     };
 
     try {
-      const token = localStorage.getItem('accessToken');
-
+      const token = await getAccessToken();
       if (!token) {
         alert('Token d\'authentification manquant. Veuillez vous reconnecter.');
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/country/create-huissier/', {
-        method: 'POST',
+      const { data } = await api.post('/country/create-huissier/', huissierData, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(huissierData)
+        }
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        // Afficher le modal de succès avec les données de réponse
-        setSuccessData(responseData);
-        setShowSuccessModal(true);
+      // Afficher le modal de succès avec les données de réponse
+      setSuccessData(data);
+      setShowSuccessModal(true);
+    } catch (error: any) {
+      console.error('Erreur lors de la création du huissier:', error);
+      
+      if (error.response?.status === 401) {
+        alert('Session expirée. Veuillez vous reconnecter.');
+      } else if (error.response?.status === 400) {
+        const errorMsg = error.response.data?.error || error.response.data?.detail || JSON.stringify(error.response.data);
+        alert(`Erreur de validation: ${errorMsg}`);
       } else {
-        const error = await response.json();
-        
-        if (response.status === 401) {
-          alert('Token expiré ou invalide. Veuillez vous reconnecter.');
-        } else if (response.status === 400) {
-          const errorMsg = error.error || error.detail || JSON.stringify(error);
-          alert(`Erreur de validation: ${errorMsg}`);
-        } else {
-          alert(`Erreur lors de la création: ${JSON.stringify(error)}`);
-        }
+        const errorMsg = error.response?.data?.message || 'Erreur lors de la création';
+        alert(`Erreur: ${errorMsg}`);
       }
-    } catch (error) {
-      alert('Erreur de connexion au serveur');
     }
   };
 
@@ -225,7 +221,7 @@ const AddUserPage = () => {
     // Ici vous pourrez ajouter l'appel API pour créer un conseiller financier
     // Pour l'instant, on simule une réponse de succès
     const mockResponse = {
-      message: "créé avec succès.",
+      message: "Conseiller financier créé avec succès.",
       password: "TempPass123!"
     };
     

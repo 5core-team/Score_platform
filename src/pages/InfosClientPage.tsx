@@ -4,6 +4,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import GaugeChart from 'react-gauge-chart';
 import { Plus, Check, User, Phone, Mail, CreditCard, Loader2, Search } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 interface Debt {
   id: number;
@@ -30,7 +31,6 @@ interface Repayment {
   status: string;
 }
 
-// Interface pour les données du client reçues du serveur
 interface ServerClientData {
   uuid: string;
   npi: string;
@@ -43,7 +43,6 @@ interface ServerClientData {
   receivables: Repayment[];
 }
 
-// Interface pour l'état local du client
 interface ClientData {
   uuid: string;
   npi: string;
@@ -55,7 +54,6 @@ interface ClientData {
   receivables: Repayment[];
 }
 
-// Interface pour le formulaire de dette
 interface NewDebtForm {
   code: string;
   amount: string;
@@ -70,7 +68,6 @@ const InfosClientPage = () => {
   const location = useLocation();
   const { getAccessToken } = useAuth();
   const serverClient = location.state?.customer as ServerClientData | undefined;
-
   const [showForm, setShowForm] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [newDebt, setNewDebt] = useState<NewDebtForm>({
@@ -95,8 +92,8 @@ const InfosClientPage = () => {
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Client introuvable</h2>
             <p className="text-gray-600 mb-4">Aucune donnée client n'a été trouvée.</p>
-            <button 
-              onClick={() => navigate(-1)} 
+            <button
+              onClick={() => navigate(-1)}
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Retour
@@ -107,7 +104,6 @@ const InfosClientPage = () => {
     );
   }
 
-  // Transformer les données du serveur en données locales
   const initialClientData: ClientData = {
     uuid: serverClient.uuid,
     npi: serverClient.npi,
@@ -122,49 +118,18 @@ const InfosClientPage = () => {
   const [clientState, setClientState] = useState<ClientData>(initialClientData);
   const scorePercentage = clientState.creditScore / 100;
 
-  // Fonction pour récupérer le nom du créancier
   const fetchCreditorName = async (npi: string) => {
     if (!npi.trim()) {
       setCreditorName("");
       return;
     }
-
     setLoadingCreditor(true);
     try {
-      // Encodage du NPI pour éviter les problèmes d'URL
-      const encodedNpi = encodeURIComponent(npi);
-      const url = `http://localhost:8000/customer/by-npi/?npi=${encodedNpi}`;
-      
-      console.log("Fetching URL:", url);
-      const token = await getAccessToken();
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Data received:", data);
-        
-        // Vérifier si les champs existent
-        if (data.customer) {
-          setCreditorName(data.customer);
-        } else {
-          console.warn("Structure de données inattendue:", data);
-          setCreditorName("Nom du créancier non disponible");
-        }
+      const response = await api.get(`/customer/by-npi/?npi=${encodeURIComponent(npi)}`);
+      if (response.data.customer) {
+        setCreditorName(response.data.customer);
       } else {
-        const errorText = await response.text();
-        console.error("Error response:", response.status, errorText);
-        setCreditorName(`Créancier introuvable (${response.status})`);
+        setCreditorName("Nom du créancier non disponible");
       }
     } catch (error) {
       console.error("Erreur lors de la récupération du créancier:", error);
@@ -174,29 +139,12 @@ const InfosClientPage = () => {
     }
   };
 
-  // Fonction pour obtenir le code du prêt
   const getLoanCode = async () => {
     setLoadingCode(true);
     try {
-      const token = await getAccessToken();
-      const response = await fetch('http://localhost:8000/country/get-loan-code/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          npi: clientState.npi
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLoanCode(data.code);
-        setShowCodeInput(true);
-      } else {
-        alert("Erreur lors de la génération du code du prêt");
-      }
+      const response = await api.post('/country/get-loan-code/', { npi: clientState.npi });
+      setLoanCode(response.data.code);
+      setShowCodeInput(true);
     } catch (error) {
       console.error("Erreur lors de la génération du code:", error);
       alert("Erreur de connexion lors de la génération du code");
@@ -205,20 +153,16 @@ const InfosClientPage = () => {
     }
   };
 
-  // Fonction pour créer la dette
   const handleAddDebt = async () => {
-    // Validation des champs
-    if (!newDebt.amount.trim() || !newDebt.periodicity.trim() || !newDebt.deadline_amount.trim() || 
+    if (!newDebt.amount.trim() || !newDebt.periodicity.trim() || !newDebt.deadline_amount.trim() ||
         !newDebt.deadline.trim() || !newDebt.creditor_npi.trim()) {
       alert("Veuillez remplir tous les champs");
       return;
     }
-
     if (!newDebt.code) {
       alert("Veuillez d'abord obtenir le code du prêt");
       return;
     }
-
     setCreatingDebt(true);
     try {
       const debtData = {
@@ -229,57 +173,37 @@ const InfosClientPage = () => {
         deadline: newDebt.deadline,
         creditor_npi: newDebt.creditor_npi
       };
-      const token = await getAccessToken();
-      const response = await fetch('http://localhost:8000/country/register-loan/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(debtData)
+      const response = await api.post('/country/register-loan/', debtData);
+      const createdDebt = response.data;
+      const newEntry: Debt = {
+        id: createdDebt.id || Date.now(),
+        creditor_npi: newDebt.creditor_npi,
+        date: new Date().toISOString(),
+        amount: newDebt.amount,
+        periodicity: newDebt.periodicity,
+        deadline_amount: newDebt.deadline_amount,
+        verified: false,
+        solvability: false,
+        status: "En cours",
+        customer: parseInt(clientState.uuid)
+      };
+      const updatedDebts = [...clientState.loans, newEntry];
+      setClientState({ ...clientState, loans: updatedDebts });
+      setNewDebt({
+        code: "",
+        amount: "",
+        periodicity: "",
+        deadline_amount: "",
+        deadline: "",
+        creditor_npi: ""
       });
-
-      if (response.ok) {
-        const createdDebt = await response.json();
-        
-        // Ajouter la nouvelle dette à la liste locale
-        const newEntry: Debt = {
-          id: createdDebt.id || Date.now(),
-          creditor_npi: newDebt.creditor_npi,
-          date: new Date().toISOString(),
-          amount: newDebt.amount,
-          periodicity: newDebt.periodicity,
-          deadline_amount: newDebt.deadline_amount,
-          verified: false,
-          solvability: false,
-          status: "En cours",
-          customer: parseInt(clientState.uuid)
-        };
-
-        const updatedDebts = [...clientState.loans, newEntry];
-        setClientState({ ...clientState, loans: updatedDebts });
-
-        // Réinitialiser le formulaire
-        setNewDebt({
-          code: "",
-          amount: "",
-          periodicity: "",
-          deadline_amount: "",
-          deadline: "",
-          creditor_npi: ""
-        });
-        setCreditorName("");
-        setLoanCode("");
-        setShowForm(false);
-        
-        alert("Dette créée avec succès!");
-      } else {
-        const errorData = await response.json();
-        alert(`Erreur lors de la création de la dette: ${errorData.message || 'Erreur inconnue'}`);
-      }
-    } catch (error) {
+      setCreditorName("");
+      setLoanCode("");
+      setShowForm(false);
+      alert("Dette créée avec succès!");
+    } catch (error: any) {
       console.error("Erreur lors de la création de la dette:", error);
-      alert("Erreur de connexion lors de la création de la dette");
+      alert(`Erreur lors de la création de la dette: ${error.response?.data?.message || 'Erreur inconnue'}`);
     } finally {
       setCreatingDebt(false);
     }
@@ -289,10 +213,8 @@ const InfosClientPage = () => {
     const updatedDebts = clientState.loans.map(debt =>
       debt.id === id ? { ...debt, status: "Remboursé" } : debt
     );
-
     const repaidDebt = clientState.loans.find(debt => debt.id === id);
     if (!repaidDebt) return;
-
     const newRepayment = {
       customer: clientState.name,
       amount: repaidDebt.amount,
@@ -304,7 +226,6 @@ const InfosClientPage = () => {
       solvability: true,
       status: "Payé"
     };
-
     const updatedRepayments = [...clientState.receivables, newRepayment];
     setClientState({ ...clientState, loans: updatedDebts, receivables: updatedRepayments });
   };
@@ -314,10 +235,9 @@ const InfosClientPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="max-w-6xl mx-auto p-6">
           <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-            {/* Header */}
             <div className="bg-primary rounded-lg p-4 text-white">
-              <button 
-                onClick={() => navigate(-1)} 
+              <button
+                onClick={() => navigate(-1)}
                 className="text-white hover:text-blue-200 mb-4 flex items-center gap-2 transition-colors"
               >
                 ← Retour
@@ -328,9 +248,7 @@ const InfosClientPage = () => {
               </h1>
               <p className="text-blue-100 mt-2">Informations détaillées du client</p>
             </div>
-
             <div className="p-8">
-              {/* Informations générales */}
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <CreditCard size={24} />
@@ -361,8 +279,6 @@ const InfosClientPage = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Score de crédit */}
               <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Score de crédit</h2>
                 <div className="w-full max-w-md mx-auto">
@@ -382,10 +298,7 @@ const InfosClientPage = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Dettes & Remboursements */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Section Dettes */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800">Dettes</h2>
@@ -397,7 +310,6 @@ const InfosClientPage = () => {
                       Ajouter
                     </button>
                   </div>
-
                   {showForm && (
                     <div className="bg-gray-50 p-4 mb-4 rounded-lg border space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -419,7 +331,6 @@ const InfosClientPage = () => {
                           <option value="yearly">Annuel</option>
                         </select>
                       </div>
-                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <input
                           type="number"
@@ -435,7 +346,6 @@ const InfosClientPage = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
-
                       <div className="space-y-2">
                         <input
                           type="text"
@@ -460,21 +370,17 @@ const InfosClientPage = () => {
                           </div>
                         )}
                       </div>
-                      {
-                        showCodeInput ?
+                      {showCodeInput && (
                         <div className="space-y-2">
-                        <input
-                          type="text"
-                          placeholder="Code de validation"
-                          value={newDebt.code}
-                          onChange={(e) => {
-                            setNewDebt({ ...newDebt, code: e.target.value });
-                            // fetchCreditorName(e.target.value);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        </div>:<></>
-                      }
+                          <input
+                            type="text"
+                            placeholder="Code de validation"
+                            value={newDebt.code}
+                            onChange={(e) => setNewDebt({ ...newDebt, code: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
+                      )}
                       <div className="bg-blue-50 p-3 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium text-blue-800">Code du prêt</span>
@@ -502,11 +408,10 @@ const InfosClientPage = () => {
                           </div>
                         )}
                       </div>
-
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           onClick={handleAddDebt}
-                          disabled={!newDebt.code || newDebt.code.length == 0 || creatingDebt}
+                          disabled={!newDebt.code || newDebt.code.length === 0 || creatingDebt}
                           className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                           {creatingDebt ? (
@@ -518,7 +423,7 @@ const InfosClientPage = () => {
                             "Créer la dette"
                           )}
                         </button>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowForm(false);
                             setNewDebt({
@@ -539,7 +444,6 @@ const InfosClientPage = () => {
                       </div>
                     </div>
                   )}
-
                   {clientState.loans.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <div className="text-4xl mb-2">📄</div>
@@ -558,8 +462,8 @@ const InfosClientPage = () => {
                                   {debt.periodicity}
                                 </span>
                                 <span className={`inline-block px-2 py-1 rounded text-xs ${
-                                  debt.status === 'Remboursé' 
-                                    ? 'bg-green-100 text-green-800' 
+                                  debt.status === 'Remboursé'
+                                    ? 'bg-green-100 text-green-800'
                                     : 'bg-yellow-100 text-yellow-800'
                                 }`}>
                                   {debt.status}
@@ -583,8 +487,6 @@ const InfosClientPage = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Section Remboursements */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">Recouvrements</h2>
                   {clientState.receivables.length === 0 ? (

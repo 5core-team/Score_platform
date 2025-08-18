@@ -4,6 +4,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import { customerAPI } from '../services/api';
 import { AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 
 const DebtPage = () => {
@@ -40,27 +41,25 @@ const DebtPage = () => {
     try {
       const token = await getAccessToken(); // récupération du token via le contexte
 
-      const response = await fetch('http://localhost:8000/country/consultation-request/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          npi: consultFormData.npi,
-          document_number: consultFormData.docNumber
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la consultation');
+      if (!token) {
+        throw new Error('Authentification requise. Veuillez vous reconnecter.');
       }
+
+      await api.post('/country/consultation-request/', {
+        npi: consultFormData.npi,
+        document_number: consultFormData.docNumber
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
       setIsCodeSent(true);
       setStep(2);
       setSuccess('Un code de vérification a été envoyé par email au client.');
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la vérification du client');
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur lors de la vérification du client';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -79,25 +78,19 @@ const DebtPage = () => {
         throw new Error('Authentification requise. Veuillez vous reconnecter.');
       }
 
-      const response = await fetch(`http://localhost:8000/country/customer-data/?code=${encodeURIComponent(verificationCode)}`, {
-        method: 'GET',
+      const { data } = await api.get(`/country/customer-data/?code=${encodeURIComponent(verificationCode)}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Code incorrect ou expiré.');
-      }
-
-      const customerData = await response.json();
       // ✅ Naviguer avec les données du client dans l'état
-      navigate('/infos-client', { state: { customer: customerData.customer } });
-
+      navigate('/infos-client', { state: { customer: data.customer } });
 
       // navigate(`/creditscore?debtor=${encodeURIComponent(`${customerData.first_name} ${customerData.last_name}`)}`);
     } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue.');
+      const errorMessage = err.response?.data?.message || err.message || 'Code incorrect ou expiré.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -117,19 +110,11 @@ const DebtPage = () => {
       }
       // console.log('Données envoyées au backend :', createFormData);
 
-      const response = await fetch('http://localhost:8000/customer/new/', {
-        method: 'POST',
+      await api.post('/customer/new/', createFormData, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(createFormData),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Erreur lors de la création du client');
-      }
 
       setSuccess('Client créé avec succès !');
       setCreateFormData({
@@ -140,7 +125,8 @@ const DebtPage = () => {
         phone_number: '',
       });
     } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue.');
+      const errorMessage = err.response?.data?.detail || err.response?.data?.message || err.message || 'Une erreur est survenue.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
