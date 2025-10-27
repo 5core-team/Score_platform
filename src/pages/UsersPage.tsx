@@ -3,19 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layouts/DashboardLayout';
 import { Edit2, Trash2, Search, Filter, UserPlus } from 'lucide-react';
 
-// Mock user data
-const mockUsers = [
-  { id: 1, name: 'Jean Dupont', email: 'jean@example.com', role: 'Conseiller financier', status: 'active', zone: 'Cotonou' },
-  { id: 2, name: 'Marie Kossi', email: 'marie@example.com', role: 'Huissier', status: 'active', zone: 'Porto-Novo' },
-  { id: 3, name: 'Paul Amoussou', email: 'paul@example.com', role: 'Conseiller financier', status: 'inactive', zone: 'Vodjè' },
-  { id: 4, name: 'Sophie Agbodjan', email: 'sophie@example.com', role: 'Admin', status: 'active', zone: 'Cotonou' },
-  { id: 5, name: 'Robert Koudoh', email: 'robert@example.com', role: 'Huissier', status: 'active', zone: 'Abomey-Calavi' },
-  { id: 6, name: 'Mr Marvin', email: 'marvinphr@example.com', role: 'Super admin', status: 'active', zone: 'evreverywhere' },
-  { id: 7, name: 'Soumaila Cissé', email: 'cissé@example.com', role: 'Huissier', status: 'active', zone: 'vèdoko' },
-  { id: 8, name: 'Brad', email: 'brad@example.com', role: 'Conseiller financier', status: 'inactive', zone: 'Akpakpa' },
-  { id: 9, name: 'Bonou Paul', email: 'paul@example.com', role: 'Conseiller financier', status: 'active', zone: 'Fidjrossè' },
+// // Mock user data
+// const mockUsers = [
+//   { id: 1, name: 'Jean Dupont', email: 'jean@example.com', role: 'Conseiller financier', status: 'active', zone: 'Cotonou' },
+//   { id: 2, name: 'Marie Kossi', email: 'marie@example.com', role: 'Huissier', status: 'active', zone: 'Porto-Novo' },
+//   { id: 3, name: 'Paul Amoussou', email: 'paul@example.com', role: 'Conseiller financier', status: 'inactive', zone: 'Vodjè' },
+//   { id: 4, name: 'Sophie Agbodjan', email: 'sophie@example.com', role: 'Admin', status: 'active', zone: 'Cotonou' },
+//   { id: 5, name: 'Robert Koudoh', email: 'robert@example.com', role: 'Huissier', status: 'active', zone: 'Abomey-Calavi' },
+//   { id: 6, name: 'Mr Marvin', email: 'marvinphr@example.com', role: 'Super admin', status: 'active', zone: 'evreverywhere' },
+//   { id: 7, name: 'Soumaila Cissé', email: 'cissé@example.com', role: 'Huissier', status: 'active', zone: 'vèdoko' },
+//   { id: 8, name: 'Brad', email: 'brad@example.com', role: 'Conseiller financier', status: 'inactive', zone: 'Akpakpa' },
+//   { id: 9, name: 'Bonou Paul', email: 'paul@example.com', role: 'Conseiller financier', status: 'active', zone: 'Fidjrossè' },
 
-];
+// ];
 
 const UsersPage = () => {
   const navigate = useNavigate();
