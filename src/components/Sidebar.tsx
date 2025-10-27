@@ -31,7 +31,7 @@ const Sidebar = () => {
 
       <div className="mt-4 p-4">
         <div className="bg-accent rounded-lg p-4">
-          <Link to="/licenses" className="flex items-center text-secondary font-semibold">
+          <Link to="/dashboard" className="flex items-center text-secondary font-semibold">
             <Home className="mr-2" size={18} />
             Licences vendues
           </Link>
@@ -86,11 +86,11 @@ const Sidebar = () => {
                     Assermentées
                   </Link>
                 </li> */}
-                <li>
+                {/* <li>
                   <Link to="/users" className="text-white/80 hover:text-white text-sm py-2 px-3 block transition-colors">
                     Utilisateurs
                   </Link>
-                </li>
+                </li> */}
               </ul>
             )}
           </li>
@@ -120,7 +120,8 @@ const Sidebar = () => {
           </li>
           <li>
             <Link 
-              to="/users/delete" 
+              // to="/users/delete" 
+              to="/dashboard"
               className={`sidebar-item ${isActive('/users/delete') ? 'active' : ''}`}
             >
               <Trash2 size={20} />

@@ -150,14 +150,14 @@ const DebtPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="max-w-5xl mx-auto p-6">
           <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
+            {/* <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6"> */}
               <h1 className="text-3xl font-bold text-white text-center">
-                Gestion des Clients - Huissier
+                {/* Gestion des Clients - Huissier */}
               </h1>
               <p className="text-blue-100 text-center mt-2">
-                Créer ou consulter un compte client
+                {/* Créer ou consulter un compte client */}
               </p>
-            </div>
+            {/* </div> */}
             
             <div className="flex bg-gray-50 border-b border-gray-200">
               <button
