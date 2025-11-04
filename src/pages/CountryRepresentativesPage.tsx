@@ -79,8 +79,14 @@ const CountryRepresentativesPage = () => {
       });
       
       setRepresentatives(updatedRepresentatives);
-    } catch (err) {
-      setError('Impossible de charger les représentants. Veuillez réessayer.');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.detail 
+        || err.response?.data?.message 
+        || err.response?.data?.error
+        || err.message 
+        || 'Impossible de charger les représentants';
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -119,8 +125,13 @@ const CountryRepresentativesPage = () => {
 
       await refreshRepresentatives();      
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
-      setError(`Une erreur est survenue lors de l'ajout du représentant: ${errorMessage}`);
+      const errorMessage = err.response?.data?.detail 
+        || err.response?.data?.message 
+        || err.response?.data?.error
+        || err.message 
+        || 'Une erreur inconnue est survenue';
+      
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,8 +178,13 @@ const CountryRepresentativesPage = () => {
       }
       
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
-      setError(`Une erreur est survenue lors de la souscription: ${errorMessage}`);
+      const errorMessage = err.response?.data?.detail 
+        || err.response?.data?.message 
+        || err.response?.data?.error
+        || err.message 
+        || 'Une erreur inconnue est survenue';
+      
+      setError(errorMessage);
     } finally {
       setIsSubscribing(false);
     }
@@ -217,8 +233,13 @@ const CountryRepresentativesPage = () => {
       
     } catch (err: any) {
       console.error("❌ Erreur lors de la modification du statut:", err);
-      const errorMessage = err.response?.data?.message || err.message || 'Erreur inconnue';
-      setError(`Une erreur est survenue lors de la modification du statut: ${errorMessage}`);
+      const errorMessage = err.response?.data?.detail 
+        || err.response?.data?.message 
+        || err.response?.data?.error
+        || err.message 
+        || 'Une erreur inconnue est survenue';
+      
+      setError(errorMessage);
     }
   };
 
