@@ -1,0 +1,18 @@
+connexion de tout les compte.
+Dashboard admin recuperation et affichage des données stats et pays.
+Admin country management, creation, suppression etc.
+
+country representative Dashboard
+zone management by country representative
+user management see read only huissier & advisor, CRUD front office
+
+front office Dashboard
+subzone management, create, update
+user management, create huissier, conseiller, update, read, delete.
+
+conseiller (advisor) Dashboard
+advisor search client by npi, validation code, read only access to client files.
+
+huissier (bailiff) Dashboard
+huissier search client by npi, validation code, access to client files.
+
