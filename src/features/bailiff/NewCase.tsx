@@ -16,9 +16,6 @@ interface CreatedCustomer {
   npi: string;
   phone_number: string;
   credit_score: number;
-  zone_name: string;
-  subzone_name: string;
-  country_name: string;
   created_at: string;
 }
 
@@ -128,9 +125,6 @@ export default function NewCase() {
                 { label: 'NPI', val: createdCustomer.npi },
                 { label: 'Email', val: createdCustomer.email },
                 { label: 'Téléphone', val: createdCustomer.phone_number || '—' },
-                { label: 'Zone', val: createdCustomer.zone_name || '—' },
-                { label: 'Sous-zone', val: createdCustomer.subzone_name || '—' },
-                { label: 'Pays', val: createdCustomer.country_name || '—' },
               ].map(row => (
                 <div key={row.label} className="flex justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">{row.label}</span>

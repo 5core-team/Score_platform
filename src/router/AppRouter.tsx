@@ -28,6 +28,8 @@ import AdvisorConsultation from '../features/advisor/AdvisorConsultation';
 
 import { UnderDevelopment } from '../components/ui/UnderDevelopment';
 import OfficeSubzones from '../features/office/OfficeSubzones';
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
+import AccountSetupPage from '../features/auth/AccountSetupPage';
 
 function LoadingFallback() {
   return (
@@ -44,6 +46,8 @@ export function AppRouter() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/account/setup" element={<AccountSetupPage />} />
 
           {/* ADMIN */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>

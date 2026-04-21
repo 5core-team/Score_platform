@@ -1,3 +1,16 @@
+AUTH 
+password reset : 
+mdp forgotten = reset password (reset code with email) : /api/auth/reset-code/
+verify code for password reset = check code sent by email for password reset, then allow user to reset password. : /api/auth/verify-code/
+Réinitialiser le mot de passe Réinitialise le mot de passe avec le token reçu après validation du code OTP : /api/auth/reset-password/
+
+in profile settings :
+change password : /api/auth/change-password/ (with old password and new password) (in profile settings)
+
+password setup for new account :
+before setting initial password, verify uuid and token sent in email for account activation : /api/auth/verify-credentials/
+set up initial password after uuid and token verification with token, uuid and new password. : /api/auth/password-setup/
+
 connexion de tout les compte.
 Dashboard admin recuperation et affichage des données stats et pays.
 Admin country management, creation, suppression etc.
