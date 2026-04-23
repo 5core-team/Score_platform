@@ -16,7 +16,6 @@ interface BackendZone {
 
 export default function CountryZones() {
   const [zones, setZones] = useState<BackendZone[]>([]);
-  const [countryId, setCountryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -36,12 +35,8 @@ export default function CountryZones() {
     setLoading(true);
     setError('');
     try {
-      const [zonesRes, dashRes] = await Promise.all([
-        Axios({ ...SummaryApi.get_zones }),
-        Axios({ ...SummaryApi.country_representative_dashboard }),
-      ]);
-      setZones(zonesRes.data);
-      setCountryId(dashRes.data.country.id);
+      const res = await Axios({ ...SummaryApi.get_zones });
+      setZones(res.data);
     } catch {
       setError('Impossible de charger les zones.');
     } finally {
@@ -68,7 +63,6 @@ export default function CountryZones() {
 
   const handleSave = async () => {
     if (!name.trim()) { setFormError('Le nom est requis.'); return; }
-    if (!countryId) { setFormError('Pays introuvable.'); return; }
     setSaving(true);
     setFormError('');
     try {
@@ -82,7 +76,7 @@ export default function CountryZones() {
       } else {
         const res = await Axios({
           ...SummaryApi.create_zone,
-          data: { name: name.trim(), country: countryId },
+          data: { name: name.trim() },
         });
         setZones(prev => [...prev, res.data]);
       }

@@ -10,7 +10,6 @@ import { Select } from '../../components/ui/Select';
 import Axios from '../../utils/Axios';
 import SummaryApi from '../../common/SummaryApi';
 
-// ── Types backend ────────────────────────────────────────────────────
 interface Huissier {
   id: number;
   zone: number;
@@ -32,6 +31,11 @@ interface FinancialAdvisor {
   is_active: boolean;
 }
 
+// ── Types backend ────────────────────────────────────────────────────
+type HuissierForm = { email: string; username: string; subZone: string; name: string; npi: string; phone: string; picture: File | null };
+type AdvisorForm  = { email: string; username: string; subZone: string; name: string; npi: string; phone: string; picture: File | null };
+
+
 interface BackendSubzone {
   id: number;
   name: string;
@@ -41,11 +45,8 @@ interface BackendSubzone {
 
 type ActiveTab = 'huissier' | 'advisor';
 
-type HuissierForm = { email: string; username: string; subZone: string; npi: string; phone: string };
-type AdvisorForm  = { email: string; username: string; subZone: string; name: string; npi: string; phone: string };
-
-const emptyHuissierForm: HuissierForm = { email: '', username: '', subZone: '', npi: '', phone: '' };
-const emptyAdvisorForm: AdvisorForm   = { email: '', username: '', subZone: '', name: '', npi: '', phone: '' };
+const emptyHuissierForm: HuissierForm = { email: '', username: '', subZone: '', name: '', npi: '', phone: '', picture: null };
+const emptyAdvisorForm: AdvisorForm   = { email: '', username: '', subZone: '', name: '', npi: '', phone: '', picture: null };
 
 // ── Composant ────────────────────────────────────────────────────────
 export default function OfficeUsers() {
@@ -125,7 +126,7 @@ export default function OfficeUsers() {
 
   const openEditH = (h: Huissier) => {
     setEditingH(h);
-    setHForm({ email: '', username: '', subZone: String(h.subZone), npi: h.npi, phone: h.phone });
+    setHForm({ email: '', username: '', subZone: String(h.subZone), name: '', npi: h.npi, phone: h.phone, picture: null });
     setHError('');
     setHModal(true);
   };
@@ -133,18 +134,33 @@ export default function OfficeUsers() {
   const handleSaveH = async () => {
     if (!hForm.subZone) { setHError('La sous-zone est requise.'); return; }
     if (!editingH && (!hForm.email || !hForm.username)) { setHError('Email et nom d\'utilisateur sont requis.'); return; }
+    if (!editingH && !hForm.picture) { setHError('La photo est requise.'); return; }
     setHSaving(true); setHError('');
     try {
-      const payload = { ...hForm, subZone: Number(hForm.subZone) };
       if (editingH) {
-        const res = await Axios({
-          ...SummaryApi.update_partial_huissier,
-          url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)),
-          data: { npi: hForm.npi, phone: hForm.phone, subZone: Number(hForm.subZone) },
-        });
-        setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
+        // édition : JSON simple (picture optionnelle)
+        const data: any = { name: hForm.name, npi: hForm.npi, phone: hForm.phone, subZone: Number(hForm.subZone) };
+        if (hForm.picture) {
+          const fd = new FormData();
+          Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
+          fd.append('picture', hForm.picture);
+          const res = await Axios({ ...SummaryApi.update_partial_huissier, url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)), data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
+          setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
+        } else {
+          const res = await Axios({ ...SummaryApi.update_partial_huissier, url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)), data });
+          setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
+        }
       } else {
-        const res = await Axios({ ...SummaryApi.create_huissier, data: payload });
+        // création : FormData obligatoire (picture)
+        const fd = new FormData();
+        fd.append('email', hForm.email);
+        fd.append('username', hForm.username);
+        fd.append('name', hForm.name);
+        fd.append('npi', hForm.npi);
+        fd.append('phone', hForm.phone);
+        fd.append('subZone', hForm.subZone);
+        fd.append('picture', hForm.picture!);
+        const res = await Axios({ ...SummaryApi.create_huissier, data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
         setHuissiers(prev => [...prev, res.data]);
       }
       setHModal(false);
@@ -165,7 +181,7 @@ export default function OfficeUsers() {
 
   const openEditA = (a: FinancialAdvisor) => {
     setEditingA(a);
-    setAForm({ email: '', username: '', subZone: String(a.subZone), name: a.name, npi: a.npi, phone: a.phone });
+    setAForm({ email: '', username: '', subZone: String(a.subZone), name: a.name, npi: a.npi, phone: a.phone, picture: null });
     setAError('');
     setAModal(true);
   };
@@ -173,18 +189,31 @@ export default function OfficeUsers() {
   const handleSaveA = async () => {
     if (!aForm.name || !aForm.subZone) { setAError('Nom et sous-zone sont requis.'); return; }
     if (!editingA && (!aForm.email || !aForm.username)) { setAError('Email et nom d\'utilisateur sont requis.'); return; }
+    if (!editingA && !aForm.picture) { setAError('La photo est requise.'); return; }
     setASaving(true); setAError('');
     try {
-      const payload = { ...aForm, subZone: Number(aForm.subZone) };
       if (editingA) {
-        const res = await Axios({
-          ...SummaryApi.update_partial_financial_advisor,
-          url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)),
-          data: { name: aForm.name, npi: aForm.npi, phone: aForm.phone, subZone: Number(aForm.subZone) },
-        });
-        setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
+        const data: any = { name: aForm.name, npi: aForm.npi, phone: aForm.phone, subZone: Number(aForm.subZone) };
+        if (aForm.picture) {
+          const fd = new FormData();
+          Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
+          fd.append('picture', aForm.picture);
+          const res = await Axios({ ...SummaryApi.update_partial_financial_advisor, url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)), data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
+          setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
+        } else {
+          const res = await Axios({ ...SummaryApi.update_partial_financial_advisor, url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)), data });
+          setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
+        }
       } else {
-        const res = await Axios({ ...SummaryApi.create_financial_advisor, data: payload });
+        const fd = new FormData();
+        fd.append('email', aForm.email);
+        fd.append('username', aForm.username);
+        fd.append('name', aForm.name);
+        fd.append('npi', aForm.npi);
+        fd.append('phone', aForm.phone);
+        fd.append('subZone', aForm.subZone);
+        fd.append('picture', aForm.picture!);
+        const res = await Axios({ ...SummaryApi.create_financial_advisor, data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
         setAdvisors(prev => [...prev, res.data]);
       }
       setAModal(false);
@@ -194,12 +223,13 @@ export default function OfficeUsers() {
       setASaving(false);
     }
   };
-
   // ── Suppression ───────────────────────────────────────────────────
   const openDelete = (id: number, type: ActiveTab, name: string) => {
     setDeleteTarget({ id, type, name });
     setDeleteModal(true);
   };
+
+
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -223,6 +253,43 @@ export default function OfficeUsers() {
       setDeleteLoading(false);
     }
   };
+
+  function FileInput({ label, value, onChange, required }: {
+    label: string;
+    value: File | null;
+    onChange: (f: File | null) => void;
+    required?: boolean;
+  }) {
+    return (
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}{required && ' *'}</label>
+        <label className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
+          value
+            ? 'border-cyan-400 bg-cyan-50 dark:bg-cyan-900/20'
+            : 'border-gray-200 dark:border-gray-700 hover:border-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+        }`}>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={e => onChange(e.target.files?.[0] ?? null)}
+          />
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${value ? 'bg-cyan-100 dark:bg-cyan-900/40' : 'bg-gray-100 dark:bg-gray-700'}`}>
+            {value
+              ? <img src={URL.createObjectURL(value)} alt="" className="w-8 h-8 rounded-lg object-cover" />
+              : <span className="text-gray-400 text-lg">📷</span>
+            }
+          </div>
+          <div className="min-w-0">
+            <p className={`text-sm font-medium truncate ${value ? 'text-cyan-600 dark:text-cyan-400' : 'text-gray-500 dark:text-gray-400'}`}>
+              {value ? value.name : 'Choisir une photo'}
+            </p>
+            <p className="text-xs text-gray-400">{value ? `${(value.size / 1024).toFixed(0)} Ko` : 'JPG, PNG, WEBP'}</p>
+          </div>
+        </label>
+      </div>
+    );
+  }
 
   // ── Rendu ─────────────────────────────────────────────────────────
   if (loading) return (
@@ -343,7 +410,7 @@ export default function OfficeUsers() {
       </Card>
 
       {/* Modal Huissier */}
-      <Modal isOpen={hModal} onClose={() => setHModal(false)} title={editingH ? 'Modifier l\'huissier' : 'Nouvel huissier'}>
+      <Modal isOpen={hModal} onClose={() => setHModal(false)} title={editingH ? "Modifier l'huissier" : 'Nouvel huissier'}>
         <div className="space-y-4">
           {!editingH && (
             <div className="grid grid-cols-2 gap-3">
@@ -351,6 +418,7 @@ export default function OfficeUsers() {
               <Input label="Nom d'utilisateur *" value={hForm.username} onChange={e => setHForm(f => ({ ...f, username: e.target.value }))} placeholder="huissier_01" />
             </div>
           )}
+          <Input label="Nom complet *" value={hForm.name} onChange={e => setHForm(f => ({ ...f, name: e.target.value }))} placeholder="Prénom Nom" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Téléphone" value={hForm.phone} onChange={e => setHForm(f => ({ ...f, phone: e.target.value }))} placeholder="+229..." />
             <Input label="NPI" value={hForm.npi} onChange={e => setHForm(f => ({ ...f, npi: e.target.value }))} placeholder="Numéro NPI" />
@@ -361,6 +429,12 @@ export default function OfficeUsers() {
             onChange={e => setHForm(f => ({ ...f, subZone: e.target.value }))}
             options={subzones.map(s => ({ value: String(s.id), label: `${s.name} (${s.zone_name})` }))}
             placeholder="Sélectionner une sous-zone"
+          />
+          <FileInput
+            label="Photo"
+            value={hForm.picture}
+            onChange={f => setHForm(prev => ({ ...prev, picture: f }))}
+            required={!editingH}
           />
           {hError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{hError}</p>}
           <div className="flex gap-3 pt-2">
@@ -390,6 +464,12 @@ export default function OfficeUsers() {
             onChange={e => setAForm(f => ({ ...f, subZone: e.target.value }))}
             options={subzones.map(s => ({ value: String(s.id), label: `${s.name} (${s.zone_name})` }))}
             placeholder="Sélectionner une sous-zone"
+          />
+          <FileInput
+            label="Photo"
+            value={aForm.picture}
+            onChange={f => setAForm(prev => ({ ...prev, picture: f }))}
+            required={!editingA}
           />
           {aError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{aError}</p>}
           <div className="flex gap-3 pt-2">

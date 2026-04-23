@@ -29,3 +29,29 @@ advisor search client by npi, validation code, read only access to client files.
 huissier (bailiff) Dashboard
 huissier search client by npi, validation code, access to client files.
 
+
+
+a revoir 
+nombre de client pour le representant pays
+le probleme est que les client ne sont apparemt pas lies au pays, ce qui fait que l'admin voit le nombre de client, mais quand il clique sur un pays, le nombre de client est 0, donc il se peut que le probleme soit, au niveau de la requete de recuperer le nombre de client dans un pays specifique ou directement liés a la creation du compte utilisateur ou le client n'est pas associer au pays
+
+
+Test in api live
+create zone in representant pays without giving country id : okay
+
+create subzone in front office without giving country zone id : okay still to test in front
+create huissier in front office with subzone id and picture file : okay still to test in front
+create conseiller financier in front office : okay but to test in front
+
+
+
+create customer and will  receive email in huissier : okay
+
+total dossier in huissier, normally when huissier create dossier,, the user created is associated to this huissier : ex user datat we have field huissier with this huissier id. in the huissier dashboard number of client will be the sum of custumers with huissier : id coresponding to the connected huissier.
+
+to test : total customer in front office : when a custumer is created, zone : zoneid of the huissier, subzone = subzone id of the huissier, county id = same as huissier. so the total custumer in the front office is the summe of customer where zone id is corresponding to the zone id of the front office
+
+total custumer in country representative = get customer where country id is equel to my country id
+
+total customer in admin is okay,  but still customer of a country selected country = count the custumers where where country id correspond to the slected country id: 
+

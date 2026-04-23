@@ -17,7 +17,6 @@ interface BackendSubzone {
 
 export default function OfficeSubzones() {
   const [subzones, setSubzones] = useState<BackendSubzone[]>([]);
-  const [zoneId, setZoneId] = useState<number | null>(null);
   const [zoneName, setZoneName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,8 +42,7 @@ export default function OfficeSubzones() {
         Axios({ ...SummaryApi.front_office_dashboard }),
       ]);
       setSubzones(subzonesRes.data);
-      setZoneId(dashRes.data.front_office.zone.id);
-      setZoneName(dashRes.data.front_office.zone.name);
+      setZoneName(dashRes.data.front_office.zone.name); // juste pour l'affichage
     } catch {
       setError('Impossible de charger les sous-zones.');
     } finally {
@@ -68,10 +66,9 @@ export default function OfficeSubzones() {
     setFormError('');
     setModalOpen(true);
   };
-
+  
   const handleSave = async () => {
     if (!name.trim()) { setFormError('Le nom est requis.'); return; }
-    if (!zoneId) { setFormError('Zone introuvable.'); return; }
     setSaving(true);
     setFormError('');
     try {
@@ -85,7 +82,7 @@ export default function OfficeSubzones() {
       } else {
         const res = await Axios({
           ...SummaryApi.create_subzone,
-          data: { name: name.trim(), zone: zoneId },
+          data: { name: name.trim() }, // ← plus de zone: zoneId
         });
         setSubzones(prev => [...prev, res.data]);
       }
