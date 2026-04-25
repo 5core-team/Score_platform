@@ -96,9 +96,14 @@ export default function AdminCountries() {
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.iso_code) { setFormError('Nom et code ISO sont requis.'); return; }
+    if (!form.name || !form.iso_code) { 
+      setFormError('Nom et code ISO sont requis.'); 
+      return; 
+    }
+    
     setSaving(true);
     setFormError('');
+
     try {
       if (editing) {
         const res = await Axios({
@@ -113,7 +118,31 @@ export default function AdminCountries() {
       }
       setModalOpen(false);
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Une erreur est survenue.');
+      // --- LOGIQUE D'AFFICHAGE DES ERREURS DU BACKEND ---
+      const responseData = err.response?.data;
+      
+      if (responseData) {
+        // Si le backend renvoie un objet d'erreurs par champ (ex: { phone_code: ["..."] })
+        if (typeof responseData === 'object' && !responseData.detail) {
+          const errorMessages = Object.entries(responseData)
+            .map(([field, messages]) => {
+              const msg = Array.isArray(messages) ? messages.join(', ') : messages;
+              return `${field} : ${msg}`;
+            })
+            .join(' | ');
+          setFormError(errorMessages);
+        } 
+        // Si le backend renvoie un message "detail" direct
+        else {
+          setFormError(responseData.detail || "Une erreur est survenue.");
+        }
+      } else {
+        setFormError("Impossible de contacter le serveur.");
+      }
+      
+      // On garde le log en console pour le debug technique
+      console.error("Détail de l'erreur API:", responseData);
+      
     } finally {
       setSaving(false);
     }
@@ -282,7 +311,7 @@ export default function AdminCountries() {
         <div className="space-y-4">
           <Input label="Nom du pays *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="ex: Sénégal" />
           <Input label="Code ISO *" value={form.iso_code} onChange={e => setForm(f => ({ ...f, iso_code: e.target.value }))} placeholder="ex: SN" />
-          <Input label="Indicatif & téléphone" value={form.phone_code} onChange={e => setForm(f => ({ ...f, phone_code: e.target.value }))} placeholder="ex: +221" />
+          <Input label="Indicatif & téléphone" value={form.phone_code} onChange={e => setForm(f => ({ ...f, phone_code: e.target.value }))} placeholder="ex: +221" maxLength={10}/>
           <Input label="Email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="pays@afrikarisque.com" />
           <Input label="Nom d'utilisateur" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder="ex: senegal_rep" />
 

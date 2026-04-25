@@ -16,7 +16,6 @@ interface Huissier {
   subZone: number;
   npi: string;
   phone: string;
-  picture: string | null;
   is_active: boolean;
 }
 
@@ -27,14 +26,11 @@ interface FinancialAdvisor {
   name: string;
   npi: string;
   phone: string;
-  picture: string | null;
   is_active: boolean;
 }
 
-// ── Types backend ────────────────────────────────────────────────────
-type HuissierForm = { email: string; username: string; subZone: string; name: string; npi: string; phone: string; picture: File | null };
-type AdvisorForm  = { email: string; username: string; subZone: string; name: string; npi: string; phone: string; picture: File | null };
-
+type HuissierForm = { email: string; username: string; subZone: string; name: string; npi: string; phone: string };
+type AdvisorForm  = { email: string; username: string; subZone: string; name: string; npi: string; phone: string };
 
 interface BackendSubzone {
   id: number;
@@ -45,10 +41,9 @@ interface BackendSubzone {
 
 type ActiveTab = 'huissier' | 'advisor';
 
-const emptyHuissierForm: HuissierForm = { email: '', username: '', subZone: '', name: '', npi: '', phone: '', picture: null };
-const emptyAdvisorForm: AdvisorForm   = { email: '', username: '', subZone: '', name: '', npi: '', phone: '', picture: null };
+const emptyHuissierForm: HuissierForm = { email: '', username: '', subZone: '', name: '', npi: '', phone: '' };
+const emptyAdvisorForm: AdvisorForm   = { email: '', username: '', subZone: '', name: '', npi: '', phone: '' };
 
-// ── Composant ────────────────────────────────────────────────────────
 export default function OfficeUsers() {
   const [activeTab, setActiveTab]       = useState<ActiveTab>('huissier');
   const [search, setSearch]             = useState('');
@@ -126,41 +121,34 @@ export default function OfficeUsers() {
 
   const openEditH = (h: Huissier) => {
     setEditingH(h);
-    setHForm({ email: '', username: '', subZone: String(h.subZone), name: '', npi: h.npi, phone: h.phone, picture: null });
+    setHForm({ email: '', username: '', subZone: String(h.subZone), name: '', npi: h.npi, phone: h.phone });
     setHError('');
     setHModal(true);
   };
 
   const handleSaveH = async () => {
     if (!hForm.subZone) { setHError('La sous-zone est requise.'); return; }
-    if (!editingH && (!hForm.email || !hForm.username)) { setHError('Email et nom d\'utilisateur sont requis.'); return; }
-    if (!editingH && !hForm.picture) { setHError('La photo est requise.'); return; }
+    if (!editingH && (!hForm.email || !hForm.username)) { setHError("Email et nom d'utilisateur sont requis."); return; }
     setHSaving(true); setHError('');
     try {
       if (editingH) {
-        // édition : JSON simple (picture optionnelle)
-        const data: any = { name: hForm.name, npi: hForm.npi, phone: hForm.phone, subZone: Number(hForm.subZone) };
-        if (hForm.picture) {
-          const fd = new FormData();
-          Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
-          fd.append('picture', hForm.picture);
-          const res = await Axios({ ...SummaryApi.update_partial_huissier, url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)), data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
-          setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
-        } else {
-          const res = await Axios({ ...SummaryApi.update_partial_huissier, url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)), data });
-          setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
-        }
+        const data = { name: hForm.name, npi: hForm.npi, phone: hForm.phone, subZone: Number(hForm.subZone) };
+        const res = await Axios({
+          ...SummaryApi.update_partial_huissier,
+          url: SummaryApi.update_partial_huissier.url.replace('{id}', String(editingH.id)),
+          data,
+        });
+        setHuissiers(prev => prev.map(h => h.id === editingH.id ? res.data : h));
       } else {
-        // création : FormData obligatoire (picture)
-        const fd = new FormData();
-        fd.append('email', hForm.email);
-        fd.append('username', hForm.username);
-        fd.append('name', hForm.name);
-        fd.append('npi', hForm.npi);
-        fd.append('phone', hForm.phone);
-        fd.append('subZone', hForm.subZone);
-        fd.append('picture', hForm.picture!);
-        const res = await Axios({ ...SummaryApi.create_huissier, data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
+        const data = {
+          email: hForm.email,
+          username: hForm.username,
+          name: hForm.name,
+          npi: hForm.npi,
+          phone: hForm.phone,
+          subZone: Number(hForm.subZone),
+        };
+        const res = await Axios({ ...SummaryApi.create_huissier, data });
         setHuissiers(prev => [...prev, res.data]);
       }
       setHModal(false);
@@ -181,39 +169,34 @@ export default function OfficeUsers() {
 
   const openEditA = (a: FinancialAdvisor) => {
     setEditingA(a);
-    setAForm({ email: '', username: '', subZone: String(a.subZone), name: a.name, npi: a.npi, phone: a.phone, picture: null });
+    setAForm({ email: '', username: '', subZone: String(a.subZone), name: a.name, npi: a.npi, phone: a.phone });
     setAError('');
     setAModal(true);
   };
 
   const handleSaveA = async () => {
     if (!aForm.name || !aForm.subZone) { setAError('Nom et sous-zone sont requis.'); return; }
-    if (!editingA && (!aForm.email || !aForm.username)) { setAError('Email et nom d\'utilisateur sont requis.'); return; }
-    if (!editingA && !aForm.picture) { setAError('La photo est requise.'); return; }
+    if (!editingA && (!aForm.email || !aForm.username)) { setAError("Email et nom d'utilisateur sont requis."); return; }
     setASaving(true); setAError('');
     try {
       if (editingA) {
-        const data: any = { name: aForm.name, npi: aForm.npi, phone: aForm.phone, subZone: Number(aForm.subZone) };
-        if (aForm.picture) {
-          const fd = new FormData();
-          Object.entries(data).forEach(([k, v]) => fd.append(k, String(v)));
-          fd.append('picture', aForm.picture);
-          const res = await Axios({ ...SummaryApi.update_partial_financial_advisor, url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)), data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
-          setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
-        } else {
-          const res = await Axios({ ...SummaryApi.update_partial_financial_advisor, url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)), data });
-          setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
-        }
+        const data = { name: aForm.name, npi: aForm.npi, phone: aForm.phone, subZone: Number(aForm.subZone) };
+        const res = await Axios({
+          ...SummaryApi.update_partial_financial_advisor,
+          url: SummaryApi.update_partial_financial_advisor.url.replace('{id}', String(editingA.id)),
+          data,
+        });
+        setAdvisors(prev => prev.map(a => a.id === editingA.id ? res.data : a));
       } else {
-        const fd = new FormData();
-        fd.append('email', aForm.email);
-        fd.append('username', aForm.username);
-        fd.append('name', aForm.name);
-        fd.append('npi', aForm.npi);
-        fd.append('phone', aForm.phone);
-        fd.append('subZone', aForm.subZone);
-        fd.append('picture', aForm.picture!);
-        const res = await Axios({ ...SummaryApi.create_financial_advisor, data: fd, headers: { 'Content-Type': 'multipart/form-data' } });
+        const data = {
+          email: aForm.email,
+          username: aForm.username,
+          name: aForm.name,
+          npi: aForm.npi,
+          phone: aForm.phone,
+          subZone: Number(aForm.subZone),
+        };
+        const res = await Axios({ ...SummaryApi.create_financial_advisor, data });
         setAdvisors(prev => [...prev, res.data]);
       }
       setAModal(false);
@@ -223,13 +206,12 @@ export default function OfficeUsers() {
       setASaving(false);
     }
   };
+
   // ── Suppression ───────────────────────────────────────────────────
   const openDelete = (id: number, type: ActiveTab, name: string) => {
     setDeleteTarget({ id, type, name });
     setDeleteModal(true);
   };
-
-
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -253,43 +235,6 @@ export default function OfficeUsers() {
       setDeleteLoading(false);
     }
   };
-
-  function FileInput({ label, value, onChange, required }: {
-    label: string;
-    value: File | null;
-    onChange: (f: File | null) => void;
-    required?: boolean;
-  }) {
-    return (
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}{required && ' *'}</label>
-        <label className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
-          value
-            ? 'border-cyan-400 bg-cyan-50 dark:bg-cyan-900/20'
-            : 'border-gray-200 dark:border-gray-700 hover:border-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-        }`}>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={e => onChange(e.target.files?.[0] ?? null)}
-          />
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${value ? 'bg-cyan-100 dark:bg-cyan-900/40' : 'bg-gray-100 dark:bg-gray-700'}`}>
-            {value
-              ? <img src={URL.createObjectURL(value)} alt="" className="w-8 h-8 rounded-lg object-cover" />
-              : <span className="text-gray-400 text-lg">📷</span>
-            }
-          </div>
-          <div className="min-w-0">
-            <p className={`text-sm font-medium truncate ${value ? 'text-cyan-600 dark:text-cyan-400' : 'text-gray-500 dark:text-gray-400'}`}>
-              {value ? value.name : 'Choisir une photo'}
-            </p>
-            <p className="text-xs text-gray-400">{value ? `${(value.size / 1024).toFixed(0)} Ko` : 'JPG, PNG, WEBP'}</p>
-          </div>
-        </label>
-      </div>
-    );
-  }
 
   // ── Rendu ─────────────────────────────────────────────────────────
   if (loading) return (
@@ -372,11 +317,11 @@ export default function OfficeUsers() {
         {activeTab === 'huissier' ? (
           <Table
             columns={[
-              { key: 'subZone', header: 'Sous-zone', render: h => <span className="text-gray-500 dark:text-gray-400">{subzoneName(h.subZone)}</span> },
-              { key: 'phone',   header: 'Téléphone',  render: h => <span className="text-gray-500 dark:text-gray-400 text-xs">{h.phone || '—'}</span> },
-              { key: 'npi',     header: 'NPI',         render: h => <span className="text-gray-500 dark:text-gray-400 text-xs font-mono">{h.npi || '—'}</span> },
-              { key: 'is_active', header: 'Statut',   render: h => <Badge variant={h.is_active ? 'success' : 'danger'}>{h.is_active ? 'Actif' : 'Inactif'}</Badge> },
-              { key: 'actions', header: '', render: h => (
+              { key: 'subZone',   header: 'Sous-zone',  render: h => <span className="text-gray-500 dark:text-gray-400">{subzoneName(h.subZone)}</span> },
+              { key: 'phone',     header: 'Téléphone',  render: h => <span className="text-gray-500 dark:text-gray-400 text-xs">{h.phone || '—'}</span> },
+              { key: 'npi',       header: 'NPI',        render: h => <span className="text-gray-500 dark:text-gray-400 text-xs font-mono">{h.npi || '—'}</span> },
+              { key: 'is_active', header: 'Statut',     render: h => <Badge variant={h.is_active ? 'success' : 'danger'}>{h.is_active ? 'Actif' : 'Inactif'}</Badge> },
+              { key: 'actions',   header: '',           render: h => (
                 <div className="flex items-center gap-1">
                   <button onClick={() => openEditH(h)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-cyan-600 transition-colors"><Pencil size={14} /></button>
                   <button onClick={() => openDelete(h.id, 'huissier', `Huissier #${h.id}`)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
@@ -390,12 +335,12 @@ export default function OfficeUsers() {
         ) : (
           <Table
             columns={[
-              { key: 'name',    header: 'Nom',         render: a => <span className="font-medium text-gray-900 dark:text-white">{a.name}</span> },
-              { key: 'subZone', header: 'Sous-zone',   render: a => <span className="text-gray-500 dark:text-gray-400">{subzoneName(a.subZone)}</span> },
-              { key: 'phone',   header: 'Téléphone',   render: a => <span className="text-gray-500 dark:text-gray-400 text-xs">{a.phone || '—'}</span> },
-              { key: 'npi',     header: 'NPI',          render: a => <span className="text-gray-500 dark:text-gray-400 text-xs font-mono">{a.npi || '—'}</span> },
-              { key: 'is_active', header: 'Statut',    render: a => <Badge variant={a.is_active ? 'success' : 'danger'}>{a.is_active ? 'Actif' : 'Inactif'}</Badge> },
-              { key: 'actions', header: '', render: a => (
+              { key: 'name',      header: 'Nom',        render: a => <span className="font-medium text-gray-900 dark:text-white">{a.name}</span> },
+              { key: 'subZone',   header: 'Sous-zone',  render: a => <span className="text-gray-500 dark:text-gray-400">{subzoneName(a.subZone)}</span> },
+              { key: 'phone',     header: 'Téléphone',  render: a => <span className="text-gray-500 dark:text-gray-400 text-xs">{a.phone || '—'}</span> },
+              { key: 'npi',       header: 'NPI',        render: a => <span className="text-gray-500 dark:text-gray-400 text-xs font-mono">{a.npi || '—'}</span> },
+              { key: 'is_active', header: 'Statut',     render: a => <Badge variant={a.is_active ? 'success' : 'danger'}>{a.is_active ? 'Actif' : 'Inactif'}</Badge> },
+              { key: 'actions',   header: '',           render: a => (
                 <div className="flex items-center gap-1">
                   <button onClick={() => openEditA(a)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-cyan-600 transition-colors"><Pencil size={14} /></button>
                   <button onClick={() => openDelete(a.id, 'advisor', a.name)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
@@ -430,12 +375,6 @@ export default function OfficeUsers() {
             options={subzones.map(s => ({ value: String(s.id), label: `${s.name} (${s.zone_name})` }))}
             placeholder="Sélectionner une sous-zone"
           />
-          <FileInput
-            label="Photo"
-            value={hForm.picture}
-            onChange={f => setHForm(prev => ({ ...prev, picture: f }))}
-            required={!editingH}
-          />
           {hError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{hError}</p>}
           <div className="flex gap-3 pt-2">
             <Button variant="secondary" onClick={() => setHModal(false)} fullWidth>Annuler</Button>
@@ -464,12 +403,6 @@ export default function OfficeUsers() {
             onChange={e => setAForm(f => ({ ...f, subZone: e.target.value }))}
             options={subzones.map(s => ({ value: String(s.id), label: `${s.name} (${s.zone_name})` }))}
             placeholder="Sélectionner une sous-zone"
-          />
-          <FileInput
-            label="Photo"
-            value={aForm.picture}
-            onChange={f => setAForm(prev => ({ ...prev, picture: f }))}
-            required={!editingA}
           />
           {aError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{aError}</p>}
           <div className="flex gap-3 pt-2">

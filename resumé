@@ -55,3 +55,18 @@ total custumer in country representative = get customer where country id is eque
 
 total customer in admin is okay,  but still customer of a country selected country = count the custumers where where country id correspond to the slected country id: 
 
+----- 
+Creation de compte representant pays par admin (okay)
+Modification de compte representant pays par admin (okay)
+Reception de mail qu'un compte pays a ete cree (okay)
+Password set up pour le representant pays (okay)
+Login for representant pays when account not activated (okay)
+See statistic in representant when account not activated see error (okay)
+Create Abonnement of a country in admin pannel (okay)
+Inform country by mail that he has e new abonnment (okay)
+See statistic in country dashboard when there is abonnement (okay)
+
+Create zone in country representative (okay)
+Stats number of zone in country representative (okay)
+Number of country in admin stat (okay)
+Create Front office in country representative without giving zone id (the ) ()
