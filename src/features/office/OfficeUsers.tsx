@@ -153,7 +153,15 @@ export default function OfficeUsers() {
       }
       setHModal(false);
     } catch (err: any) {
-      setHError(err.response?.data?.detail || 'Une erreur est survenue.');
+      const data = err.response?.data;
+      if (data && typeof data === 'object') {
+        // Prend le premier message d'erreur du premier champ
+        const firstKey = Object.keys(data)[0];
+        const firstMsg = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+        setHError(firstMsg || 'Une erreur est survenue.');
+      } else {
+        setHError('Une erreur est survenue.');
+      }
     } finally {
       setHSaving(false);
     }
@@ -201,7 +209,14 @@ export default function OfficeUsers() {
       }
       setAModal(false);
     } catch (err: any) {
-      setAError(err.response?.data?.detail || 'Une erreur est survenue.');
+      const data = err.response?.data;
+      if (data && typeof data === 'object') {
+        const firstKey = Object.keys(data)[0];
+        const firstMsg = Array.isArray(data[firstKey]) ? data[firstKey][0] : data[firstKey];
+        setAError(firstMsg || 'Une erreur est survenue.');
+      } else {
+        setAError('Une erreur est survenue.');
+      }
     } finally {
       setASaving(false);
     }
