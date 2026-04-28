@@ -107,3 +107,7 @@ Number of conseiller in Admin, front office (okay)
 Conseiller find client by npi (okay)
 Conseiller send opt to client (okay)
 Conseiller validate otp (okay)
+
+Profile
+change password and photo in profile (okay)
+see photo in profile (not okay in api)

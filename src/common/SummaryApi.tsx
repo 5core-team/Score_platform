@@ -7,10 +7,6 @@ const SummaryApi = {
         url : '/api/auth/login/',
         method : 'post'
     },
-    change_password : { // user change password
-        url : '/api/auth/change-password/',
-        method : 'post'
-    },
     password_setup : { // user password setup for the first time
         url : '/api/auth/password-setup/',
         method : 'post'
@@ -33,12 +29,24 @@ const SummaryApi = {
     },
 
     //Profile
-    update_profile : { // update user profile
+    get_profile : { // get user profile
         url : '/api/auth/profile/',
-        method : 'put'
+        method : 'get'
     },
-    update_partial_profile : { // update user profile partially
-        url : '/api/auth/profile/',
+    change_password : { // user change password
+        url : '/api/auth/profile/change-password/',
+        method : 'post'
+    },
+    confirm_password : { // confirm the password changement
+        url : '/api/auth/profile/confirm-password/',
+        method : 'get'
+    },
+    update_username : { // update username
+        url : '/api/auth/profile/update-username/',
+        method : 'patch'
+    },
+    upload_photo : { // upload profile photo
+        url : '/api/auth/profile/upload-photo/',
         method : 'patch'
     },
 
