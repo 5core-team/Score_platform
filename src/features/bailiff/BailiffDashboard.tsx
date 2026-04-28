@@ -128,7 +128,7 @@ export default function BailiffDashboard() {
         />
         <StatCard
           title="Remboursements"
-          value={stats?.remboursements_suivis.total ?? 0}
+          value={stats?.remboursements_suivis?.total ?? 0}
           icon={<TrendingUp size={20} className="text-emerald-500" />}
           iconBg="bg-emerald-50 dark:bg-emerald-900/20"
         />
