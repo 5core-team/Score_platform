@@ -1,0 +1,72 @@
+AUTH 
+password reset : 
+mdp forgotten = reset password (reset code with email) : /api/auth/reset-code/
+verify code for password reset = check code sent by email for password reset, then allow user to reset password. : /api/auth/verify-code/
+Réinitialiser le mot de passe Réinitialise le mot de passe avec le token reçu après validation du code OTP : /api/auth/reset-password/
+
+in profile settings :
+change password : /api/auth/change-password/ (with old password and new password) (in profile settings)
+
+password setup for new account :
+before setting initial password, verify uuid and token sent in email for account activation : /api/auth/verify-credentials/
+set up initial password after uuid and token verification with token, uuid and new password. : /api/auth/password-setup/
+
+connexion de tout les compte.
+Dashboard admin recuperation et affichage des données stats et pays.
+Admin country management, creation, suppression etc.
+
+country representative Dashboard
+zone management by country representative
+user management see read only huissier & advisor, CRUD front office
+
+front office Dashboard
+subzone management, create, update
+user management, create huissier, conseiller, update, read, delete.
+
+conseiller (advisor) Dashboard
+advisor search client by npi, validation code, read only access to client files.
+
+huissier (bailiff) Dashboard
+huissier search client by npi, validation code, access to client files.
+
+
+
+a revoir 
+nombre de client pour le representant pays
+le probleme est que les client ne sont apparemt pas lies au pays, ce qui fait que l'admin voit le nombre de client, mais quand il clique sur un pays, le nombre de client est 0, donc il se peut que le probleme soit, au niveau de la requete de recuperer le nombre de client dans un pays specifique ou directement liés a la creation du compte utilisateur ou le client n'est pas associer au pays
+
+
+Test in api live
+create zone in representant pays without giving country id : okay
+
+create subzone in front office without giving country zone id : okay still to test in front
+create huissier in front office with subzone id and picture file : okay still to test in front
+create conseiller financier in front office : okay but to test in front
+
+
+
+create customer and will  receive email in huissier : okay
+
+total dossier in huissier, normally when huissier create dossier,, the user created is associated to this huissier : ex user datat we have field huissier with this huissier id. in the huissier dashboard number of client will be the sum of custumers with huissier : id coresponding to the connected huissier.
+
+to test : total customer in front office : when a custumer is created, zone : zoneid of the huissier, subzone = subzone id of the huissier, county id = same as huissier. so the total custumer in the front office is the summe of customer where zone id is corresponding to the zone id of the front office
+
+total custumer in country representative = get customer where country id is equel to my country id
+
+total customer in admin is okay,  but still customer of a country selected country = count the custumers where where country id correspond to the slected country id: 
+
+----- 
+Creation de compte representant pays par admin (okay)
+Modification de compte representant pays par admin (okay)
+Reception de mail qu'un compte pays a ete cree (okay)
+Password set up pour le representant pays (okay)
+Login for representant pays when account not activated (okay)
+See statistic in representant when account not activated see error (okay)
+Create Abonnement of a country in admin pannel (okay)
+Inform country by mail that he has e new abonnment (okay)
+See statistic in country dashboard when there is abonnement (okay)
+
+Create zone in country representative (okay)
+Stats number of zone in country representative (okay)
+Number of country in admin stat (okay)
+Create Front office in country representative without giving zone id (the ) ()
