@@ -215,7 +215,7 @@ const SummaryApi = {
         method : 'get'
     },
     create_subzone : { // create a new zone
-        url : '/api/geography/subzones',
+        url : '/api/geography/subzones/',
         method : 'post'
     },
     get_subzone : { // get a zone by id
@@ -319,7 +319,7 @@ const SummaryApi = {
         method : 'get'
     },
     create_huissier : { // create a new huissier
-        url : '/api/staff/huissiers',
+        url : '/api/staff/huissiers/',
         method : 'post'
     },
     get_huissier : { // get a huissier by id
