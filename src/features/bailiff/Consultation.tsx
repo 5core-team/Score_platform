@@ -89,89 +89,6 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-// ── Edit form ──────────────────────────────────────────────────────
-
-interface EditFormProps {
-  customer: CustomerDetail;
-  onClose: () => void;
-  onSaved: (c: CustomerDetail) => void;
-}
-
-function EditForm({ customer, onClose, onSaved }: EditFormProps) {
-  const [form, setForm] = useState({
-    first_name: customer.first_name,
-    last_name: customer.last_name,
-    email: customer.email,
-    npi: customer.npi,
-    phone_number: customer.phone_number || '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<Partial<typeof form>>({});
-
-  const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(f => ({ ...f, [field]: e.target.value }));
-    setFieldErrors(fe => ({ ...fe, [field]: '' }));
-    setError('');
-  };
-
-  const handleSave = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await Axios({
-        ...SummaryApi.update_customer,
-        url: `/api/customers/customers/${customer.uuid}/`,
-        method: 'PATCH',
-        data: {
-          first_name: form.first_name.trim(),
-          last_name:  form.last_name.trim(),
-          email:      form.email.trim(),
-          npi:        form.npi.trim(),
-          phone_number: form.phone_number.trim() || undefined,
-        },
-      });
-      onSaved(res.data);
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: Record<string, string[]>; status?: number } };
-      if (axiosErr?.response?.status === 400 && axiosErr.response.data) {
-        const data = axiosErr.response.data;
-        const be: Partial<typeof form> = {};
-        if (data.first_name)   be.first_name   = data.first_name[0];
-        if (data.last_name)    be.last_name     = data.last_name[0];
-        if (data.email)        be.email         = data.email[0];
-        if (data.npi)          be.npi           = data.npi[0];
-        if (data.phone_number) be.phone_number  = data.phone_number[0];
-        setFieldErrors(be);
-        if (data.non_field_errors) setError(data.non_field_errors[0]);
-      } else if (axiosErr?.response?.status === 403) {
-        setError('Permission refusée. Seuls les huissiers peuvent modifier un client.');
-      } else {
-        setError('Une erreur est survenue. Veuillez réessayer.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <Input label="Prénom *" value={form.first_name} onChange={set('first_name')} error={fieldErrors.first_name} />
-        <Input label="Nom *"    value={form.last_name}  onChange={set('last_name')}  error={fieldErrors.last_name} />
-      </div>
-      <Input label="Email *"     type="email" value={form.email}        onChange={set('email')}        error={fieldErrors.email} />
-      <Input label="NPI *"                   value={form.npi}          onChange={set('npi')}          error={fieldErrors.npi} />
-      <Input label="Téléphone"   type="tel"  value={form.phone_number}  onChange={set('phone_number')} error={fieldErrors.phone_number} placeholder="+229 00 00 00 00" />
-      {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{error}</p>}
-      <div className="flex gap-3 pt-1">
-        <Button variant="secondary" onClick={onClose} fullWidth>Annuler</Button>
-        <Button onClick={handleSave} fullWidth loading={loading}>Enregistrer</Button>
-      </div>
-    </div>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────────
 
 export default function Consultation() {
@@ -293,15 +210,6 @@ export default function Consultation() {
 
   // ── Action buttons config ───────────────────────────────────────
   const actions = [
-    {
-      icon: <UserCog size={20} />,
-      label: 'Modifier le client',
-      description: 'Mettre à jour les informations',
-      color: 'from-cyan-500 to-cyan-600',
-      shadow: 'shadow-cyan-500/20',
-      onClick: () => setEditModal(true),
-      active: true,
-    },
     {
       icon: <ReceiptText size={20} />,
       label: 'Lister les dettes',
@@ -524,19 +432,6 @@ export default function Consultation() {
         </div>
       )}
 
-      {/* ── Edit modal ── */}
-      {customer && (
-        <Modal isOpen={editModal} onClose={() => setEditModal(false)} title="Modifier le client" size="md">
-          <EditForm
-            customer={customer}
-            onClose={() => setEditModal(false)}
-            onSaved={(updated) => {
-              setCustomer(updated);
-              setEditModal(false);
-            }}
-          />
-        </Modal>
-      )}
     </div>
   );
 }
