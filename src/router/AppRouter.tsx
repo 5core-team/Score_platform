@@ -26,10 +26,12 @@ import AdvisorLayout from '../features/advisor/AdvisorLayout';
 import AdvisorDashboard from '../features/advisor/AdvisorDashboard';
 import AdvisorConsultation from '../features/advisor/AdvisorConsultation';
 
-import { UnderDevelopment } from '../components/ui/UnderDevelopment';
+//mport { UnderDevelopment } from '../components/ui/UnderDevelopment';
 import OfficeSubzones from '../features/office/OfficeSubzones';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import AccountSetupPage from '../features/auth/AccountSetupPage';
+import Profile from '../components/ui/Profile';
+import ConfirmPasswordPage from '../components/ui/ConfirmPasswordPage';
 
 function LoadingFallback() {
   return (
@@ -48,6 +50,8 @@ export function AppRouter() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/account/setup" element={<AccountSetupPage />} />
+          <Route path="/profile/confirm-password" element={<ConfirmPasswordPage />} />
+
 
           {/* ADMIN */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
@@ -55,8 +59,8 @@ export function AppRouter() {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="countries" element={<AdminCountries />} />
-              <Route path="subscriptions" element={<UnderDevelopment title="Abonnements" />} />
-              <Route path="settings" element={<UnderDevelopment title="Paramètres" />} />
+              {/*<Route path="subscriptions" element={<UnderDevelopment title="Abonnements" />} />*/}
+              <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
 
@@ -67,7 +71,7 @@ export function AppRouter() {
               <Route path="dashboard" element={<CountryDashboard />} />
               <Route path="zones" element={<CountryZones />} />
               <Route path="users" element={<CountryUsers />} />
-              <Route path="settings" element={<UnderDevelopment title="Paramètres" />} />
+              <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
 
@@ -78,6 +82,7 @@ export function AppRouter() {
               <Route path="dashboard" element={<OfficeDashboard />} />
               <Route path="subzones" element={<OfficeSubzones />} />
               <Route path="users" element={<OfficeUsers />} />
+              <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
 
@@ -88,6 +93,7 @@ export function AppRouter() {
               <Route path="dashboard" element={<BailiffDashboard />} />
               <Route path="new-case" element={<NewCase />} />
               <Route path="consultation" element={<Consultation />} />
+              <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
 
@@ -97,6 +103,7 @@ export function AppRouter() {
               <Route index element={<Navigate to="/advisor/dashboard" replace />} />
               <Route path="dashboard" element={<AdvisorDashboard />} />
               <Route path="consultation" element={<AdvisorConsultation />} />
+              <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
 
