@@ -53,8 +53,18 @@ export default function BailiffDashboard() {
     try {
       const res = await Axios({ ...SummaryApi.huissier_dashboard });
       setDashboard(res.data);
-    } catch {
-      setError('Impossible de charger les données.');
+    } catch (err: any) {
+      // 1. On cherche le message détaillé renvoyé par l'API
+      const backendError = 
+        err.response?.data?.detail || 
+        err.response?.data?.error || 
+        (typeof err.response?.data === 'string' ? err.response.data : null);
+
+      // 2. On affiche soit le message précis, soit un message de secours
+      setError(backendError || 'Impossible de charger les données du tableau de bord.');
+      
+      // Optionnel : on log l'erreur complète en console pour le dev
+      console.error("Dashboard Fetch Error:", err);
     } finally {
       setLoading(false);
     }
