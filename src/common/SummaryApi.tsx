@@ -90,11 +90,11 @@ const SummaryApi = {
     },
 
     //Customer dettes
-    get_customer_debts : { // get all dettes of a customer by customer id | huissier + conseiller  toutes les dettes (read only pour le conseiller)
+    get_customer_debts : { // get all dettes of a customer by customer uuid | huissier + conseiller  toutes les dettes (read only pour le conseiller)
         url : '/api/customers/debts/',
         method : 'get'
     },
-    create_customer_debt : { // create a new dette for a customer by customer id | huissier seulement Nécessite un session_token valide.
+    create_customer_debt : { // create a new dette for a customer by customer uuid | huissier seulement Nécessite un session_token valide.
         url : '/api/customers/debts/',
         method : 'post'
     },
@@ -110,6 +110,10 @@ const SummaryApi = {
         url : '/api/customers/debts/{id}/',
         method : 'patch'
     },
+    customer_dets_history : { // get the history of a customer debt by debt id | huissier + conseiller  read only pour le conseiller
+        url : '/api/customers/debts/{uuid}/repayments/',
+        method : 'get'
+    },
     send_validation_request_for_customer_debt_by_id : { // send a validation request for a customer debt by debt id | huissier seulement Nécessite un session_token valide.
         url : '/api/customers/debts/{id}/send-validation/',
         method : 'post'
@@ -120,6 +124,10 @@ const SummaryApi = {
     },
     reject_debt_by_unique_link : { // refuse a customer debt by unique link | no auth required. le lien doit être unique. no parameter just token
         url : 'api/customers/debts/reject/',
+        method : 'get'
+    },
+    validate_debt_by_unique_link : { // validate a customer debt by unique link | no auth required. le lien doit être unique. no parameter just token
+        url : 'api/customers/debts/validate/',
         method : 'get'
     },
 
