@@ -110,4 +110,18 @@ Conseiller validate otp (okay)
 
 Profile
 change password and photo in profile (okay)
-see photo in profile (not okay in api)
+See photo in profile (okay)
+
+consultation huissier 
+Search who take credit by npi (okay)
+Send OTP verification to client email (okay)
+Verify OTP code received by client (okay)
+
+Huissier liste client debt (okay)
+Resend debt link (okay)
+Register new debt by finding creditor (okay)
+Liste rembourseiments (okay)
+Validate/reject debt by debitor (okay)
+Validate/reject rembourseiments by creditor (okay)
+Toggle monitoring (logic not okay in api)
+
