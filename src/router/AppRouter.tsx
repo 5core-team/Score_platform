@@ -32,6 +32,10 @@ import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import AccountSetupPage from '../features/auth/AccountSetupPage';
 import Profile from '../components/ui/Profile';
 import ConfirmPasswordPage from '../components/ui/ConfirmPasswordPage';
+import ValidateDebt from '../features/debts/ValidateDebt';
+import RejectDebt from '../features/debts/RejectDebt';
+import RejectRepayment from '../features/repayments/RejectRepayment';
+import ValidateRepayment from '../features/repayments/ValidateRepayment';
 
 function LoadingFallback() {
   return (
@@ -51,6 +55,10 @@ export function AppRouter() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/account/setup" element={<AccountSetupPage />} />
           <Route path="/profile/confirm-password" element={<ConfirmPasswordPage />} />
+          <Route path="/debts/validate" element={<ValidateDebt />} />
+          <Route path="/debts/reject" element={<RejectDebt />} />
+          <Route path="/repayments/reject" element={<RejectRepayment />} />
+          <Route path="/repayments/validate" element={<ValidateRepayment />} />
 
 
           {/* ADMIN */}
