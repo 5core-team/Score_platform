@@ -69,4 +69,59 @@ See statistic in country dashboard when there is abonnement (okay)
 Create zone in country representative (okay)
 Stats number of zone in country representative (okay)
 Number of country in admin stat (okay)
-Create Front office in country representative without giving zone id (the ) ()
+Create Front office in country representative by giving zone id (okay )
+Stats number of front office in Country representative (okay)
+Front office receive email when his account his created (okay)
+
+Number of front office in Admin dashboard (okay)
+Front office password setup (okay)
+
+Front office create subzone without giving zone id (okay)
+Front office dashboard number of subzones (okay)
+Create huissier in front office (okay)
+Number of huissier in front office dash (okay)
+Number of huissier in Admin dashboard (okay)
+Number of huissier in Country representative (okay)
+Huissier receive email when his account is created (okay)
+
+Password set up for new huissier (okay)
+Huissier create client (okay [still = not allow 2 npi])
+Client receive email when his dossier is created (okay)
+Stats huissier dossier client cree (okay)
+Huissier search user by npi (okay)
+Huissier send otp consultation code to client (okay)
+Huissier validate otp code (okay)
+
+Number of client in country representative (okay)
+Number of Zone in country representative (okay)
+Number of client in Admin dashboard and by country (okay)
+
+Stats taux de reponse and consultation number in huissier (okay)
+Number of client in front office (okay)
+Number of consulation in front office (okay)
+
+Create conseiller in front office (okay)
+Conseiller receive email and setup account ()
+Number of conseiller in Admin, front office (okay)
+
+Conseiller find client by npi (okay)
+Conseiller send opt to client (okay)
+Conseiller validate otp (okay)
+
+Profile
+change password and photo in profile (okay)
+See photo in profile (okay)
+
+consultation huissier 
+Search who take credit by npi (okay)
+Send OTP verification to client email (okay)
+Verify OTP code received by client (okay)
+
+Huissier liste client debt (okay)
+Resend debt link (okay)
+Register new debt by finding creditor (okay)
+Liste rembourseiments (okay)
+Validate/reject debt by debitor (okay)
+Validate/reject rembourseiments by creditor (okay)
+Toggle monitoring (logic not okay in api)
+

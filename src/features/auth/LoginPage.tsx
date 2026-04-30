@@ -28,21 +28,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  const result = await login(email, password);
+    const result = await login(email, password);
 
-  if (result.success) {
-    const role = localStorage.getItem('afrikarisque-role') as Role | null;
-    navigate(role ? ROLE_PATHS[role] : '/login');
-  } else {
-    setError(result.error || 'Erreur de connexion');
-  }
+    if (result.success) {
+      const role = localStorage.getItem('afrikarisque-role') as Role | null;
+      navigate(role ? ROLE_PATHS[role] : '/login');
+    } else {
+      //setError(result.error || 'Erreur de connexion');
+      setError(result.error || 'Erreur de connexion.');
+    }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
