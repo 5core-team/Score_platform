@@ -56,12 +56,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { success: true };
     } catch (error: any) {
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Erreur de connexion',
-      };
-    }
-  };
+      let message = 'Erreur de connexion';
+
+        if (error.response) {
+          // Si le serveur a renvoyé du JSON (ex: { detail: "..." })
+          if (typeof error.response.data === 'object' && error.response.data.detail) {
+            message = error.response.data.detail;
+          } 
+          // Si le serveur renvoie une erreur 400 brute sans JSON (ton cas actuel)
+          else if (error.response.status === 400) {
+            message = 'Identifiants invalides'; // Message manuel car le serveur envoie du HTML
+          }
+        }
+      
+        return {
+          success: false,
+          error: message,
+        };
+      }
+    };
 
   const logout = () => {
     setUser(null);
