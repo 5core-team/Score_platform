@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, Scale, Users, User, MapPin, TrendingUp, ChevronRight, RefreshCw, ShieldCheck, Clock } from 'lucide-react';
+import { Building2, Scale, Users, User, MapPin, TrendingUp, ChevronRight, RefreshCw, ShieldCheck, Clock, AlertTriangle } from 'lucide-react';
 import { StatCard, Card } from '../../components/ui/Card';
 import { Table } from '../../components/ui/Table';
 import { Modal } from '../../components/ui/Modal';
@@ -55,6 +55,7 @@ export default function CountryDashboard() {
   const [selectedZone, setSelectedZone] = useState<ZoneDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -64,6 +65,7 @@ export default function CountryDashboard() {
       setDashboard(res.data);
     } catch {
       setError('Impossible de charger les données.');
+      setShowErrorModal(true);   // ← Affichage du modal
     } finally {
       setLoading(false);
     }
@@ -217,6 +219,44 @@ export default function CountryDashboard() {
             ))}
           </div>
         )}
+      </Modal>
+
+      {/* Modal d'erreur */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Accès non activé"
+      >
+        <div className="text-center py-6">
+          <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6">
+            <AlertTriangle size={32} className="text-red-600 dark:text-red-500" />
+          </div>
+          
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            Votre abonnement n'est pas activé
+          </h3>
+          
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
+            Veuillez contacter l'administrateur pour l'activation de votre abonnement.
+          </p>
+
+          <div className="flex flex-col gap-3">
+            <button 
+              onClick={fetchData}
+              className="w-full py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-medium flex items-center justify-center gap-2"
+            >
+              <RefreshCw size={18} />
+              Réessayer
+            </button>
+            
+            <button 
+              onClick={() => setShowErrorModal(false)}
+              className="w-full py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
