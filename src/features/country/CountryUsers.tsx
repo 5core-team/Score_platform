@@ -174,20 +174,6 @@ export default function CountryUsers() {
 
   const openDelete = (fo: FrontOffice) => { setDeleting(fo); setDeleteModal(true); };
 
-  const handleDelete = async () => {
-    if (!deleting) return;
-    setDeleteLoading(true);
-    try {
-      await Axios({
-        ...SummaryApi.delete_front_office,
-        url: SummaryApi.delete_front_office.url.replace('{id}', String(deleting.id)),
-      });
-      setFrontOffices(prev => prev.filter(fo => fo.id !== deleting.id));
-      setDeleteModal(false);
-    } catch { /* silencieux */ } finally {
-      setDeleteLoading(false);
-    }
-  };
 
   // ── Tabs config ───────────────────────────────────────────────────
   const tabs: { key: ActiveTab; label: string; icon: React.ReactNode; count: number }[] = [
@@ -370,7 +356,7 @@ export default function CountryUsers() {
       </Modal>
 
       {/* Modal suppression FO */}
-      <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Supprimer le Front Office">
+      {/*<Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Supprimer le Front Office">
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Voulez-vous vraiment supprimer <span className="font-semibold text-gray-900 dark:text-white">{deleting?.name}</span> ? Cette action est irréversible.
@@ -380,7 +366,7 @@ export default function CountryUsers() {
             <Button onClick={handleDelete} loading={deleteLoading} fullWidth className="bg-red-500 hover:bg-red-600">Supprimer</Button>
           </div>
         </div>
-      </Modal>
+      </Modal>*/}
     </div>
   );
 }
