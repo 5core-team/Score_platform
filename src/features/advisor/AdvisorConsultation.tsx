@@ -794,7 +794,7 @@ function CreateDebtView({ customerUuid, sessionToken, onBack, onSuccess }: Creat
         <div className="flex items-center gap-2 pb-3 mb-4 border-b border-gray-100 dark:border-gray-700">
           <Building2 size={15} className="text-cyan-500" />
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Créditeur</span>
-          <span className="text-xs text-gray-400">(optionnel)</span>
+          <span className="text-xs text-gray-400">(*)</span>
         </div>
 
         {creditorResult ? (
