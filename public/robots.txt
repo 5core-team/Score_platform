@@ -1,0 +1,22 @@
+# Robots.txt for africarisque.com
+
+User-agent: *
+Allow: /
+
+# Pages privées / back-office
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /account
+Disallow: /admin
+Disallow: /country
+Disallow: /office
+Disallow: /bailiff
+Disallow: /advisor
+
+# Actions internes
+Disallow: /debts
+Disallow: /repayments
+Disallow: /profile
+
+# Sitemap
+Sitemap: https://africarisque.com/sitemap.xml

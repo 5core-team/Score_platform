@@ -5,6 +5,7 @@ import {
   ArrowRight, Menu, X, Phone, Mail,
   MapPin, CheckCircle, AlertCircle
 } from 'lucide-react';
+import SEO from '../../../SEO.tsx';
 
 /* ─── GLOBAL STYLES ─── */
 const G = `
@@ -827,6 +828,22 @@ function Footer() {
 export default function LandingPage() {
   return (
     <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", color: 'var(--text-dark)' }}>
+      <SEO
+        title="AfricaRisque • Plateforme sécurisé d’évaluation de risques"
+        description="AfricaRisque est une plateforme d’évaluation du risque financier pour PME, microfinance et secteur informel en Afrique de l’Ouest. Analyse de crédit, scoring alternatif et gestion des risques financiers."
+        keywords={[
+          "plateforme de gestion des risques",
+          "analyse de risque crédit Afrique",
+          "évaluation risque financier PME",
+          "microfinance Afrique de l’Ouest",
+          "risque de non-remboursement",
+          "gestion des risques financiers",
+          "scoring crédit alternatif",
+          "analyse crédit secteur informel",
+          "évaluation emprunteur informel",
+          "solution analyse risque Afrique"
+        ]}
+      />
       <Navbar />
       <Hero />
       <TrustBand />

@@ -1,5 +1,6 @@
-import { LayoutDashboard, UserPlus, Search , Settings} from 'lucide-react';
+import { LayoutDashboard, UserPlus, Search, Settings } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Helmet } from 'react-helmet-async';
 
 const navItems = [
   { label: 'Tableau de bord', path: '/bailiff/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -9,5 +10,13 @@ const navItems = [
 ];
 
 export default function BailiffLayout() {
-  return <DashboardLayout navItems={navItems} pageTitle="Huissier" />;
+  return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
+
+      <DashboardLayout navItems={navItems} pageTitle="Huissier" />
+    </>
+  );
 }

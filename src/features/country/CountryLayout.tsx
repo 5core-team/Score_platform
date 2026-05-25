@@ -1,5 +1,6 @@
 import { LayoutDashboard, MapPin, Users, Settings } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Helmet } from 'react-helmet-async';
 
 const navItems = [
   { label: 'Tableau de bord', path: '/country/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -9,5 +10,13 @@ const navItems = [
 ];
 
 export default function CountryLayout() {
-  return <DashboardLayout navItems={navItems} pageTitle="Représentant Pays" />;
+  return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
+
+      <DashboardLayout navItems={navItems} pageTitle="Représentant Pays" />
+    </>
+  );
 }
