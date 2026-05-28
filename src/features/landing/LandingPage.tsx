@@ -393,7 +393,7 @@ function Solution() {
 
           <div style={{ position: 'relative' }}>
             <img
-              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80"
+              src="2_huissier_de_justice.png"
               alt=""
               style={{ width: '100%', height: 520, objectFit: 'cover', display: 'block' }}
             />
@@ -488,7 +488,7 @@ function Governance() {
 
           <div style={{ position: 'relative', order: 1 }}>
             <img
-              src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=900&q=80"
+              src="/1_conseiller_financier.png"
               alt="Réunion institutionnelle"
               style={{ width: '100%', height: 400, objectFit: 'cover', display: 'block' }}
             />
@@ -814,10 +814,10 @@ function Footer() {
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <p style={{ fontSize: 11.5, color: '#3d5468', fontFamily: "'IBM Plex Sans', sans-serif" }}>© 2026 AfricaRisque. Tous droits réservés.</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/*<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <Lock size={10} style={{ color: '#3d5468' }} />
             <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9.5, color: '#3d5468', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accès contrôlé · Données protégées</p>
-          </div>
+          </div>*/}
         </div>
       </div>
     </footer>
