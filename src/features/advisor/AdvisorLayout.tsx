@@ -1,5 +1,6 @@
 import { LayoutDashboard, Search, Settings } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { Helmet } from 'react-helmet-async';
 
 const navItems = [
   { label: 'Tableau de bord', path: '/advisor/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -8,5 +9,13 @@ const navItems = [
 ];
 
 export default function AdvisorLayout() {
-  return <DashboardLayout navItems={navItems} pageTitle="Conseiller" />;
+  return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
+
+      <DashboardLayout navItems={navItems} pageTitle="Conseiller" />
+    </>
+  );
 }

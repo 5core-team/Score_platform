@@ -55,10 +55,10 @@ export default function LoginPage() {
           <img src="/logo.jpeg" alt="Afrika Risque" className="h-24 w-24 rounded-2xl mx-auto mb-6 shadow-2xl" />
           <h2 className="text-3xl font-extrabold text-white mb-3">Afrika Risque</h2>
           <p className="text-gray-400 text-base leading-relaxed max-w-sm">
-            La plateforme de confiance pour la gestion des créances et la vérification de solvabilité en Afrique.
+            La plateforme sécurisée d’évaluation de risques
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
-            {[['42', 'Pays'], ['2K+', 'Dossiers'], ['99.8%', 'Uptime']].map(([v, l]) => (
+            {[['5', 'Pays'], ['2K+', 'Dossiers'], ['99.8%', 'Uptime']].map(([v, l]) => (
               <div key={l} className="bg-white/5 rounded-xl p-4 border border-white/10">
                 <p className="text-xl font-bold text-cyan-400">{v}</p>
                 <p className="text-xs text-gray-400 mt-1">{l}</p>
