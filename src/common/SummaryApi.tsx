@@ -27,6 +27,11 @@ const SummaryApi = {
         url : '/api/auth/verify-credentials/',
         method : 'post'
     },
+    //forms of contact
+    contact_forms : { // user submit a contact form
+        url : '/api/auth/contact/',
+        method : 'post'
+    },
 
     //Profile
     get_profile : { // get user profile
