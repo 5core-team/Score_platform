@@ -2,10 +2,37 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Shield, Eye, Users, Lock, FileText,
-  ArrowRight, Menu, X, Phone, Mail,
+  ArrowRight, Menu, X, Phone, Mail, Loader2, CheckCircle2,
   MapPin, CheckCircle, AlertCircle
 } from 'lucide-react';
 import SEO from '../../../SEO.tsx';
+import Axios from '../../utils/Axios.tsx';
+import SummaryApi from '../../common/SummaryApi.tsx';
+
+/* ─── TYPES POUR LE FORMULAIRE ─── */
+interface ContactFormData {
+  organisation_name: string;
+  email: string;
+  phone: string;
+  organisation_type: string;
+  country: string;
+  message: string;
+  // Note : Le champ "Nom & fonction du responsable" et "Objet" ne sont pas présents 
+  // dans ton schéma d'API backend, on va donc les concaténer intelligemment dans le "message".
+  manager_name: string;
+  subject: string;
+}
+
+const initialFormState: ContactFormData = {
+  organisation_name: '',
+  email: '',
+  phone: '',
+  organisation_type: '',
+  country: '',
+  subject: '',
+  manager_name: '',
+  message: ''
+};
 
 /* ─── GLOBAL STYLES ─── */
 const G = `
@@ -662,12 +689,72 @@ function Quote() {
 
 /* ─── CONTACT ─── */
 function Contact() {
+  const [formData, setFormData] = useState<ContactFormData>(initialFormState);
+  const [errorStatus, setErrorStatus] = useState<string | null>(null); // Uniquement pour gérer les erreurs maintenant
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // Nouvel état pour le bouton Succès
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.organisation_name || !formData.email || !formData.organisation_type || !formData.country || !formData.message) {
+      setErrorStatus('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorStatus(null);
+
+    const payload = {
+      organisation_name: formData.organisation_name,
+      email: formData.email,
+      phone: formData.phone,
+      organisation_type: formData.organisation_type,
+      country: formData.country,
+      message: `[Responsable]: ${formData.manager_name}\n[Objet]: ${formData.subject}\n\n[Message]: ${formData.message}`
+    };
+
+    try {
+      await Axios({
+        ...SummaryApi.contact_forms,
+        data: payload
+      });
+
+      // 1. Déclencher l'état de succès sur le bouton
+      setIsSuccess(true);
+      setFormData(initialFormState); // Réinitialise les champs
+
+      // 2. Remettre le bouton à la normale après 10 secondes (10000 ms)
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 10000);
+
+    } catch (err: any) {
+      const responseData = err.response?.data;
+      if (responseData && typeof responseData === 'object') {
+        const errorMessages = Object.entries(responseData)
+          .map(([field, messages]) => `${field} : ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+          .join(' | ');
+        setErrorStatus(errorMessages || 'Une erreur est survenue lors de l\'envoi.');
+      } else {
+        setErrorStatus(responseData?.detail || 'Impossible de contacter le serveur.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" style={{ padding: '100px 32px', background: '#fff', borderTop: '1px solid var(--border)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
         <div className="cta-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 72, alignItems: 'start' }}>
 
-          {/* Left */}
+          {/* Left Panel */}
           <div>
             <span className="label" style={{ display: 'block', marginBottom: 16, color: 'var(--red-accent)' }}>Accès sécurisé à la plateforme</span>
             <h2 style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 'clamp(1.9rem, 3.5vw, 2.8rem)', fontWeight: 700, color: 'var(--navy)', lineHeight: 1.18, marginBottom: 24 }}>
@@ -677,7 +764,6 @@ function Contact() {
               Cette plateforme est exclusivement réservée aux institutions partenaires et aux utilisateurs habilités. Toutes les consultations sont tracées et soumises aux mécanismes de contrôle et d'autorisation définis par l'infrastructure. Pour avoir plus d'informations vous pouvez nous contacter en remplissant le formulaire suivant, nos équipes se chargeront de vous contacter sous 72H.
             </p>
 
-            {/* Info panel */}
             <div style={{ border: '1px solid #f0c060', borderLeft: '3px solid #d97706', background: '#fffcf3', padding: '18px 20px', maxWidth: 420 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                 <AlertCircle size={15} style={{ color: '#b45309', flexShrink: 0, marginTop: 2 }} />
@@ -687,7 +773,6 @@ function Contact() {
               </div>
             </div>
 
-            {/* Contact details */}
             <div style={{ marginTop: 36, paddingTop: 36, borderTop: '1px solid var(--border)' }}>
               {[
                 { icon: MapPin, text: 'Cotonou, Bénin' },
@@ -702,54 +787,120 @@ function Contact() {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Form Panel */}
           <div style={{ background: 'var(--off-white)', border: '1px solid var(--border)', padding: '40px 36px' }}>
             <div style={{ marginBottom: 28 }}>
               <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--navy)', marginBottom: 6, fontFamily: "'Libre Baskerville', serif" }}>Formulaire de contact institutionnel</h3>
               <p style={{ fontSize: 12.5, color: '#7a96a8', fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.06em' }}>Remplissez les champs ci-dessous</p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {[
-                { label: "Nom de l'organisation", type: 'text', placeholder: 'Ex: Banque Atlantique' },
-                { label: 'Nom & fonction du responsable', type: 'text', placeholder: 'Ex: Jean Martin, DGA' },
-                { label: 'Email professionnel', type: 'email', placeholder: 'contact@organisation.com' },
-                { label: 'Téléphone', type: 'tel', placeholder: '+229 XX XX XX XX' },
-              ].map(f => (
-                <div key={f.label}>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{f.label}</label>
-                  <input type={f.type} placeholder={f.placeholder} />
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              
+              {/* On ne garde l'encadré que s'il y a une erreur technique */}
+              {errorStatus && (
+                <div style={{ padding: '12px 16px', fontSize: 13, borderRadius: 2, backgroundColor: '#fce8e6', color: '#c5221f', border: '1px solid #fad2cf' }}>
+                  {errorStatus}
                 </div>
-              ))}
+              )}
 
-              {[
-                { label: "Type d'organisation", opts: ['Banque commerciale', 'Microfinance', 'Institution de crédit', 'Organisme de régulation', 'Autre'] },
-                { label: 'Pays', opts: ['Bénin', "Côte d'Ivoire", 'Sénégal', 'Mali', 'Burkina Faso', 'Autre'] },
-              ].map(s => (
-                <div key={s.label}>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>{s.label}</label>
-                  <select><option value="">Sélectionner…</option>{s.opts.map(o => <option key={o}>{o}</option>)}</select>
-                </div>
-              ))}
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Nom de l'organisation *</label>
+                <input type="text" name="organisation_name" value={formData.organisation_name} onChange={handleChange} placeholder="Ex: Banque Atlantique" required disabled={isSubmitting || isSuccess} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Nom & fonction du responsable</label>
+                <input type="text" name="manager_name" value={formData.manager_name} onChange={handleChange} placeholder="Ex: Jean Martin, DGA" disabled={isSubmitting || isSuccess} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Email professionnel *</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="contact@organisation.com" required disabled={isSubmitting || isSuccess} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Téléphone</label>
+                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+229 XX XX XX XX" disabled={isSubmitting || isSuccess} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Type d'organisation *</label>
+                <select name="organisation_type" value={formData.organisation_type} onChange={handleChange} required disabled={isSubmitting || isSuccess}>
+                  <option value="">Sélectionner…</option>
+                  <option value="banque">Banque commerciale</option>
+                  <option value="microfinance">Microfinance</option>
+                  <option value="credit">Institution de crédit</option>
+                  <option value="regulation">Organisme de régulation</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Pays *</label>
+                <select name="country" value={formData.country} onChange={handleChange} required disabled={isSubmitting || isSuccess}>
+                  <option value="">Sélectionner…</option>
+                  <option value="Bénin">Bénin</option>
+                  <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                  <option value="Sénégal">Sénégal</option>
+                  <option value="Mali">Mali</option>
+                  <option value="Burkina Faso">Burkina Faso</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Objet de la demande</label>
-                <input type="text" placeholder="Ex: Demande d'accès partenaire institutionnel" />
+                <input type="text" name="subject" value={formData.subject} onChange={handleChange} placeholder="Ex: Demande d'accès partenaire institutionnel" disabled={isSubmitting || isSuccess} />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Message / besoin</label>
-                <textarea rows={4} placeholder="Décrivez brièvement votre besoin et le contexte de votre institution…" style={{ resize: 'none' }} />
+                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Message / besoin *</label>
+                <textarea rows={4} name="message" value={formData.message} onChange={handleChange} placeholder="Décrivez brièvement votre besoin et le contexte de votre institution…" style={{ resize: 'none' }} required disabled={isSubmitting || isSuccess} />
               </div>
 
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '15px', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4, borderRadius: 2 }}>
-                Prendre contact <ArrowRight size={14} />
+              {/* Le bouton s'adapte dynamiquement en fonction des 3 états (Normal, Envoi, Succès) */}
+              <button 
+                type="submit"
+                className={isSuccess ? "" : "btn-primary"} 
+                disabled={isSubmitting || isSuccess}
+                style={{ 
+                  width: '100%', 
+                  justifyContent: 'center', 
+                  padding: '15px', 
+                  fontSize: isSuccess ? 11 : 12, // Légèrement plus petit si le texte de succès est long
+                  letterSpacing: '0.1em', 
+                  textTransform: 'uppercase', 
+                  marginTop: 4, 
+                  borderRadius: 2, 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  cursor: (isSubmitting || isSuccess) ? 'not-allowed' : 'pointer',
+                  // Styles dynamiques pour le bouton Vert de Succès
+                  backgroundColor: isSuccess ? '#137333' : undefined,
+                  color: isSuccess ? '#ffffff' : undefined,
+                  border: isSuccess ? '1px solid #137333' : undefined,
+                  opacity: isSubmitting ? 0.7 : 1,
+                  transition: 'background-color 0.3s ease'
+                }}
+              >
+                {isSubmitting && (
+                  <>Envoi en cours... <Loader2 size={14} className="animate-spin" /></>
+                )}
+                
+                {isSuccess && (
+                  <><CheckCircle2 size={14} /> Envoyé ! Notre équipe vous contactera sous 72h</>
+                )}
+                
+                {!isSubmitting && !isSuccess && (
+                  <>Prendre contact <ArrowRight size={14} /></>
+                )}
               </button>
 
               <p style={{ fontSize: 11, color: '#9aacb8', textAlign: 'center', lineHeight: 1.6, fontFamily: "'IBM Plex Mono', monospace", letterSpacing: '0.06em' }}>
                 Accès exclusivement réservé aux institutions agréées
               </p>
-            </div>
+            </form>
           </div>
 
         </div>
