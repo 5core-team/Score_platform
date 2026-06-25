@@ -73,6 +73,7 @@ export default function OfficeUsers() {
   const [deleteModal, setDeleteModal]   = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; type: ActiveTab; name: string } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError]   = useState('');
 
   // ── Chargement ────────────────────────────────────────────────────
   const fetchAll = async () => {
@@ -225,6 +226,7 @@ export default function OfficeUsers() {
   // ── Suppression ───────────────────────────────────────────────────
   const openDelete = (id: number, type: ActiveTab, name: string) => {
     setDeleteTarget({ id, type, name });
+    setDeleteError('');
     setDeleteModal(true);
   };
 
@@ -246,7 +248,17 @@ export default function OfficeUsers() {
         setAdvisors(prev => prev.filter(a => a.id !== deleteTarget.id));
       }
       setDeleteModal(false);
-    } catch { /* silencieux */ } finally {
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.detail) setDeleteError(String(data.detail));
+      else if (data?.error) setDeleteError(String(data.error));
+      else if (typeof data === 'object' && data && Object.keys(data).length > 0) {
+        const firstVal = data[Object.keys(data)[0]];
+        setDeleteError(Array.isArray(firstVal) ? firstVal[0] : String(firstVal));
+      } else {
+        setDeleteError('La suppression a échoué. Veuillez réessayer.');
+      }
+    } finally {
       setDeleteLoading(false);
     }
   };
@@ -433,6 +445,9 @@ export default function OfficeUsers() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Voulez-vous vraiment supprimer <span className="font-semibold text-gray-900 dark:text-white">{deleteTarget?.name}</span> ? Cette action est irréversible.
           </p>
+          {deleteError && (
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{deleteError}</p>
+          )}
           <div className="flex gap-3">
             <Button variant="secondary" onClick={() => setDeleteModal(false)} fullWidth>Annuler</Button>
             <Button onClick={handleDelete} loading={deleteLoading} fullWidth className="bg-red-500 hover:bg-red-600">Supprimer</Button>

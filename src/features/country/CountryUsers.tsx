@@ -166,7 +166,22 @@ export default function CountryUsers() {
       }
       setModalOpen(false);
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Une erreur est survenue.');
+      const data = err?.response?.data;
+      if (!data) {
+        setFormError('Impossible de contacter le serveur.');
+      } else if (data.detail) {
+        setFormError(String(data.detail));
+      } else if (data.error) {
+        setFormError(String(data.error));
+      } else if (data.non_field_errors) {
+        const v = data.non_field_errors;
+        setFormError(Array.isArray(v) ? v[0] : String(v));
+      } else if (typeof data === 'object' && Object.keys(data).length > 0) {
+        const firstVal = data[Object.keys(data)[0]];
+        setFormError(Array.isArray(firstVal) ? firstVal[0] : String(firstVal));
+      } else {
+        setFormError('Une erreur est survenue.');
+      }
     } finally {
       setSaving(false);
     }

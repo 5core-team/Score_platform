@@ -674,10 +674,10 @@ function Quote() {
               "Dans un contexte où la grande majorité des actifs économiques évoluent hors du système formel, disposer d'un outil fiable pour évaluer le risque est devenu une nécessité stratégique pour tout établissement financier sérieux."
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&q=80" alt="" style={{ width: 42, height: 42, objectFit: 'cover', borderRadius: '50%', border: '2px solid rgba(0,180,200,0.3)' }} />
+              <img src="./marvin.jpg" alt="" style={{ width: 42, height: 42, objectFit: 'cover', borderRadius: '50%', border: '2px solid rgba(0,180,200,0.3)' }} />
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Directeur Risque</p>
-                <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--muted)', marginTop: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Institution financière partenaire, Bénin</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>CEO</p>
+                <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--muted)', marginTop: 3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Africa risque</p>
               </div>
             </div>
           </div>
@@ -777,7 +777,7 @@ function Contact() {
               {[
                 { icon: MapPin, text: 'Cotonou, Bénin' },
                 { icon: Mail, text: 'contact@africarisque.com' },
-                { icon: Phone, text: '+229 XX XX XX XX' },
+                { icon: Phone, text: '+229 62290099' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                   <Icon size={13} style={{ color: 'var(--cyan)' }} />
@@ -820,7 +820,7 @@ function Contact() {
 
               <div>
                 <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Téléphone</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+229 XX XX XX XX" disabled={isSubmitting || isSuccess} />
+                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+229 62290099" disabled={isSubmitting || isSuccess} />
               </div>
 
               <div>
@@ -927,7 +927,7 @@ function Footer() {
             {[
               { icon: MapPin, text: 'Cotonou, Bénin' },
               { icon: Mail, text: 'contact@africarisque.com' },
-              { icon: Phone, text: '+229 XX XX XX XX' },
+              { icon: Phone, text: '+229 62290099' },
             ].map(({ icon: Icon, text }) => (
               <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <Icon size={12} style={{ color: 'var(--cyan)' }} />

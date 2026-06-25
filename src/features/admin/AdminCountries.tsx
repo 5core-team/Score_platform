@@ -64,6 +64,10 @@ export default function AdminCountries() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState<BackendCountry | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  // Erreur modal abonnement
+  const [subError, setSubError] = useState('');
 
   const fetchCountries = async () => {
     setLoading(true);
@@ -149,7 +153,7 @@ export default function AdminCountries() {
   };
 
   // ── Suppression ─────────────────────────────────────────────────────
-  const openDelete = (c: BackendCountry) => { setDeleting(c); setDeleteModal(true); };
+  const openDelete = (c: BackendCountry) => { setDeleting(c); setDeleteError(''); setDeleteModal(true); };
 
   const handleDelete = async () => {
     if (!deleting) return;
@@ -161,8 +165,16 @@ export default function AdminCountries() {
       });
       setCountries(prev => prev.filter(c => c.id !== deleting.id));
       setDeleteModal(false);
-    } catch {
-      // erreur silencieuse — on pourrait ajouter un toast ici
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.detail) setDeleteError(String(data.detail));
+      else if (data?.error) setDeleteError(String(data.error));
+      else if (typeof data === 'object' && data && Object.keys(data).length > 0) {
+        const firstVal = data[Object.keys(data)[0]];
+        setDeleteError(Array.isArray(firstVal) ? firstVal[0] : String(firstVal));
+      } else {
+        setDeleteError('La suppression a échoué. Veuillez réessayer.');
+      }
     } finally {
       setDeleteLoading(false);
     }
@@ -172,6 +184,7 @@ export default function AdminCountries() {
   const openSubscription = async (c: BackendCountry) => {
     setSubCountry(c);
     setSubscription(null);
+    setSubError('');
     setSubModal(true);
     setSubLoading(true);
     try {
@@ -198,19 +211,30 @@ export default function AdminCountries() {
       await openSubscription(subCountry);
       // Rafraîchir le statut dans la liste
       setCountries(prev => prev.map(c => c.id === subCountry.id ? { ...c, has_valid_subscription: true } : c));
-    } catch { /* silencieux */ } finally { setSubAction(false); }
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.detail) setSubError(String(data.detail));
+      else if (data?.error) setSubError(String(data.error));
+      else setSubError("La création de l'abonnement a échoué.");
+    } finally { setSubAction(false); }
   };
 
   const handleRenewSub = async () => {
     if (!subCountry) return;
     setSubAction(true);
+    setSubError('');
     try {
       await Axios({
         ...SummaryApi.renew_country_subscription,
         url: SummaryApi.renew_country_subscription.url.replace('{country_id}', String(subCountry.id)),
       });
       await openSubscription(subCountry);
-    } catch { /* silencieux */ } finally { setSubAction(false); }
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.detail) setSubError(String(data.detail));
+      else if (data?.error) setSubError(String(data.error));
+      else setSubError('Le renouvellement a échoué.');
+    } finally { setSubAction(false); }
   };
 
   // ── Rendu ───────────────────────────────────────────────────────────
@@ -331,6 +355,9 @@ export default function AdminCountries() {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Voulez-vous vraiment supprimer <span className="font-semibold text-gray-900 dark:text-white">{deleting?.name}</span> ? Cette action est irréversible.
           </p>
+          {deleteError && (
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{deleteError}</p>
+          )}
           <div className="flex gap-3">
             <Button variant="secondary" onClick={() => setDeleteModal(false)} fullWidth>Annuler</Button>
             <Button onClick={handleDelete} loading={deleteLoading} fullWidth className="bg-red-500 hover:bg-red-600">Supprimer</Button>
@@ -372,10 +399,16 @@ export default function AdminCountries() {
           ) : (
             <>
               <p className="text-sm text-gray-500 dark:text-gray-400">Aucun abonnement actif pour ce pays.</p>
+              {subError && (
+                <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{subError}</p>
+              )}
               <Button onClick={handleCreateSub} loading={subAction} fullWidth>
                 <Plus size={15} /> Créer l'abonnement
               </Button>
             </>
+          )}
+          {subError && subscription && (
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{subError}</p>
           )}
         </div>
       </Modal>

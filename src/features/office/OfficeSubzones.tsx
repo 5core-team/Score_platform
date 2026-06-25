@@ -32,6 +32,7 @@ export default function OfficeSubzones() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState<BackendSubzone | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
@@ -88,14 +89,29 @@ export default function OfficeSubzones() {
       }
       setModalOpen(false);
     } catch (err: any) {
-      setFormError(err.response?.data?.detail || 'Une erreur est survenue.');
+      const data = err?.response?.data;
+      if (!data) {
+        setFormError('Impossible de contacter le serveur.');
+      } else if (data.detail) {
+        setFormError(String(data.detail));
+      } else if (data.error) {
+        setFormError(String(data.error));
+      } else if (data.non_field_errors) {
+        const v = data.non_field_errors;
+        setFormError(Array.isArray(v) ? v[0] : String(v));
+      } else if (typeof data === 'object' && Object.keys(data).length > 0) {
+        const firstVal = data[Object.keys(data)[0]];
+        setFormError(Array.isArray(firstVal) ? firstVal[0] : String(firstVal));
+      } else {
+        setFormError('Une erreur est survenue.');
+      }
     } finally {
       setSaving(false);
     }
   };
 
   // ── Suppression ─────────────────────────────────────────────────
-  const openDelete = (s: BackendSubzone) => { setDeleting(s); setDeleteModal(true); };
+  const openDelete = (s: BackendSubzone) => { setDeleting(s); setDeleteError(''); setDeleteModal(true); };
 
   const handleDelete = async () => {
     if (!deleting) return;
@@ -107,7 +123,17 @@ export default function OfficeSubzones() {
       });
       setSubzones(prev => prev.filter(s => s.id !== deleting.id));
       setDeleteModal(false);
-    } catch { /* silencieux */ } finally {
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.detail) setDeleteError(String(data.detail));
+      else if (data?.error) setDeleteError(String(data.error));
+      else if (typeof data === 'object' && Object.keys(data).length > 0) {
+        const firstVal = data[Object.keys(data)[0]];
+        setDeleteError(Array.isArray(firstVal) ? firstVal[0] : String(firstVal));
+      } else {
+        setDeleteError('La suppression a échoué. Veuillez réessayer.');
+      }
+    } finally {
       setDeleteLoading(false);
     }
   };
@@ -229,6 +255,9 @@ export default function OfficeSubzones() {
             <span className="font-semibold text-gray-900 dark:text-white">{deleting?.name}</span> ?
             Cette action est irréversible.
           </p>
+          {deleteError && (
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{deleteError}</p>
+          )}
           <div className="flex gap-3">
             <Button variant="secondary" onClick={() => setDeleteModal(false)} fullWidth>Annuler</Button>
             <Button onClick={handleDelete} loading={deleteLoading} fullWidth className="bg-red-500 hover:bg-red-600">
