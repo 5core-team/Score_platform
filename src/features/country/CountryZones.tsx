@@ -39,7 +39,7 @@ export default function CountryZones() {
       const res = await Axios({ ...SummaryApi.get_zones });
       setZones(res.data);
     } catch {
-      setError('Impossible de charger les zones.');
+      setError('Abonnement non activé. Veuillez contacter l\'administrateur pour l\'activation de votre abonnement.');
     } finally {
       setLoading(false);
     }

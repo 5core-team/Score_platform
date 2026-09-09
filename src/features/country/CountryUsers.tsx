@@ -101,7 +101,7 @@ export default function CountryUsers() {
       setAdvisors(advisorRes.data);
       setZones(zonesRes.data);
     } catch {
-      setError('Impossible de charger les données.');
+      setError('Abonnement non activé. Veuillez contacter l\'administrateur pour l\'activation de votre abonnement.');
     } finally {
       setLoading(false);
     }

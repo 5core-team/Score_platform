@@ -64,7 +64,7 @@ export default function CountryDashboard() {
       const res = await Axios({ ...SummaryApi.country_representative_dashboard });
       setDashboard(res.data);
     } catch {
-      setError('Impossible de charger les données.');
+      setError('Abonnement non activé. Veuillez contacter l\'administrateur pour l\'activation de votre abonnement.');
       setShowErrorModal(true);   // ← Affichage du modal
     } finally {
       setLoading(false);
