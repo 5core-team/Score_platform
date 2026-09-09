@@ -351,7 +351,7 @@ export default function OfficeUsers() {
               { key: 'actions',   header: '',           render: h => (
                 <div className="flex items-center gap-1">
                   <button onClick={() => openEditH(h)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-cyan-600 transition-colors"><Pencil size={14} /></button>
-                  <button onClick={() => openDelete(h.id, 'huissier', `Huissier #${h.id}`)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                  {/*<button onClick={() => openDelete(h.id, 'huissier', `Huissier #${h.id}`)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>*/}
                 </div>
               )},
             ]}
@@ -370,7 +370,7 @@ export default function OfficeUsers() {
               { key: 'actions',   header: '',           render: a => (
                 <div className="flex items-center gap-1">
                   <button onClick={() => openEditA(a)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-cyan-600 transition-colors"><Pencil size={14} /></button>
-                  <button onClick={() => openDelete(a.id, 'advisor', a.name)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                  {/*<button onClick={() => openDelete(a.id, 'advisor', a.name)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>*/}
                 </div>
               )},
             ]}
@@ -393,7 +393,14 @@ export default function OfficeUsers() {
           <Input label="Nom complet *" value={hForm.name} onChange={e => setHForm(f => ({ ...f, name: e.target.value }))} placeholder="Prénom Nom" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Téléphone" value={hForm.phone} onChange={e => setHForm(f => ({ ...f, phone: e.target.value }))} placeholder="+229..." />
-            <Input label="NPI" value={hForm.npi} onChange={e => setHForm(f => ({ ...f, npi: e.target.value }))} placeholder="Numéro NPI" />
+            <Input
+              label="NPI"
+              value={hForm.npi}
+              onChange={e => setHForm(f => ({ ...f, npi: e.target.value.replace(/\D/g, '') }))}
+              placeholder="Numéro NPI"
+              inputMode="numeric"
+              pattern="[0-9]*"
+            />
           </div>
           <Select
             label="Sous-zone *"
@@ -422,7 +429,14 @@ export default function OfficeUsers() {
           <Input label="Nom complet *" value={aForm.name} onChange={e => setAForm(f => ({ ...f, name: e.target.value }))} placeholder="Prénom Nom" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Téléphone" value={aForm.phone} onChange={e => setAForm(f => ({ ...f, phone: e.target.value }))} placeholder="+229..." />
-            <Input label="NPI" value={aForm.npi} onChange={e => setAForm(f => ({ ...f, npi: e.target.value }))} placeholder="Numéro NPI" />
+            <Input
+              label="NPI"
+              value={aForm.npi}
+              onChange={e => setAForm(f => ({ ...f, npi: e.target.value.replace(/\D/g, '') }))}
+              placeholder="Numéro NPI"
+              inputMode="numeric"
+              pattern="[0-9]*"
+            />
           </div>
           <Select
             label="Sous-zone *"
