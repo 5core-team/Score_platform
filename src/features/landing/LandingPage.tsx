@@ -909,12 +909,12 @@ function Contact() {
   );
 }
 
-/* ─── FOOTER ─── */
+
 function Footer() {
   return (
     <footer style={{ background: 'var(--navy)', padding: '64px 32px 32px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <div className="foot-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 48, marginBottom: 52 }}>
+        <div className="foot-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 52 }}>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
@@ -939,11 +939,17 @@ function Footer() {
           <div>
             <h4 style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9.5, fontWeight: 500, letterSpacing: '0.16em', color: '#c8d6df', textTransform: 'uppercase', marginBottom: 20 }}>Plateforme</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['Solution', 'Fonctionnement', 'Gouvernance', 'Sécurité', 'Documentation'].map(l => (
-                <li key={l}>
-                  <a href="#" style={{ fontSize: 13, color: 'var(--muted)', transition: 'color .2s' }}
-                    onMouseEnter={e => e.target.style.color = 'var(--cyan)'}
-                    onMouseLeave={e => e.target.style.color = 'var(--muted)'}>{l}</a>
+              {[
+                { label: 'Solution', href: '#' },
+                { label: 'Fonctionnement', href: '#' },
+                { label: 'Gouvernance', href: '/gouvernance-donnees' },
+                { label: 'Sécurité', href: '#' },
+                { label: 'Documentation', href: '#' },
+              ].map(item => (
+                <li key={item.label}>
+                  <Link to={item.href} style={{ fontSize: 13, color: 'var(--muted)', transition: 'color .2s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'var(--cyan)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>{item.label}</Link>
                 </li>
               ))}
             </ul>
@@ -952,11 +958,16 @@ function Footer() {
           <div>
             <h4 style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9.5, fontWeight: 500, letterSpacing: '0.16em', color: '#c8d6df', textTransform: 'uppercase', marginBottom: 20 }}>Légal</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['Politique de confidentialité', "Conditions d'utilisation", 'Conformité', 'Mentions légales'].map(l => (
-                <li key={l}>
-                  <a href="#" style={{ fontSize: 13, color: 'var(--muted)', transition: 'color .2s' }}
-                    onMouseEnter={e => e.target.style.color = 'var(--cyan)'}
-                    onMouseLeave={e => e.target.style.color = 'var(--muted)'}>{l}</a>
+              {[
+                { label: 'Politique de confidentialité', href: '/politique-confidentialite' },
+                { label: "Conditions d'utilisation", href: '/cgu' },
+                { label: 'Charte de gouvernance', href: '/gouvernance-donnees' },
+                { label: 'Mentions légales', href: '/mentions-legales' },
+              ].map(item => (
+                <li key={item.label}>
+                  <Link to={item.href} style={{ fontSize: 13, color: 'var(--muted)', transition: 'color .2s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = 'var(--cyan)'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}>{item.label}</Link>
                 </li>
               ))}
             </ul>
@@ -965,15 +976,12 @@ function Footer() {
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <p style={{ fontSize: 11.5, color: '#3d5468', fontFamily: "'IBM Plex Sans', sans-serif" }}>© 2026 AfricaRisque. Tous droits réservés.</p>
-          {/*<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Lock size={10} style={{ color: '#3d5468' }} />
-            <p style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9.5, color: '#3d5468', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Accès contrôlé · Données protégées</p>
-          </div>*/}
         </div>
       </div>
     </footer>
   );
 }
+
 
 /* ─── ROOT ─── */
 export default function LandingPage() {

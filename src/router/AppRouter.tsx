@@ -26,7 +26,6 @@ import AdvisorLayout from '../features/advisor/AdvisorLayout';
 import AdvisorDashboard from '../features/advisor/AdvisorDashboard';
 import AdvisorConsultation from '../features/advisor/AdvisorConsultation';
 
-//mport { UnderDevelopment } from '../components/ui/UnderDevelopment';
 import OfficeSubzones from '../features/office/OfficeSubzones';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import AccountSetupPage from '../features/auth/AccountSetupPage';
@@ -36,6 +35,12 @@ import ValidateDebt from '../features/debts/ValidateDebt';
 import RejectDebt from '../features/debts/RejectDebt';
 import RejectRepayment from '../features/repayments/RejectRepayment';
 import ValidateRepayment from '../features/repayments/ValidateRepayment';
+
+// Pages Légales
+import MentionLegale from '../features/legal/MentionLegale';
+import Datagouv from '../features/legal/Datagouv';
+import CGU from '../features/legal/CGU';
+import PoliticalConfidence from '../features/legal/PoliticalConfidence';
 
 function LoadingFallback() {
   return (
@@ -60,6 +65,11 @@ export function AppRouter() {
           <Route path="/repayments/reject" element={<RejectRepayment />} />
           <Route path="/repayments/validate" element={<ValidateRepayment />} />
 
+          {/* PAGES LÉGALES ET GOUVERNANCE */}
+          <Route path="/mentions-legales" element={<MentionLegale />} />
+          <Route path="/gouvernance-donnees" element={<Datagouv />} />
+          <Route path="/cgu" element={<CGU />} />
+          <Route path="/politique-confidentialite" element={<PoliticalConfidence />} />
 
           {/* ADMIN */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
@@ -67,7 +77,6 @@ export function AppRouter() {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="countries" element={<AdminCountries />} />
-              {/*<Route path="subscriptions" element={<UnderDevelopment title="Abonnements" />} />*/}
               <Route path="settings" element={<Profile title="Profil" />} />
             </Route>
           </Route>
