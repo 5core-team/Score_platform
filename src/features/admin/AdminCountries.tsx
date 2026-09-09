@@ -110,23 +110,22 @@ export default function AdminCountries() {
 
     try {
       if (editing) {
-        const res = await Axios({
+        await Axios({
           ...SummaryApi.update_country,
           url: SummaryApi.update_country.url.replace('{id}', String(editing.id)),
           data: form,
         });
-        setCountries(prev => prev.map(c => c.id === editing.id ? res.data : c));
       } else {
-        const res = await Axios({ ...SummaryApi.create_country, data: form });
-        setCountries(prev => [...prev, res.data]);
+        await Axios({ ...SummaryApi.create_country, data: form });
       }
+      
+      // On re-fetch la liste complète depuis le serveur pour garantir l'actualisation directe de l'affichage
+      await fetchCountries();
       setModalOpen(false);
     } catch (err: any) {
-      // --- LOGIQUE D'AFFICHAGE DES ERREURS DU BACKEND ---
       const responseData = err.response?.data;
       
       if (responseData) {
-        // Si le backend renvoie un objet d'erreurs par champ (ex: { phone_code: ["..."] })
         if (typeof responseData === 'object' && !responseData.detail) {
           const errorMessages = Object.entries(responseData)
             .map(([field, messages]) => {
@@ -135,18 +134,14 @@ export default function AdminCountries() {
             })
             .join(' | ');
           setFormError(errorMessages);
-        } 
-        // Si le backend renvoie un message "detail" direct
-        else {
+        } else {
           setFormError(responseData.detail || "Une erreur est survenue.");
         }
       } else {
         setFormError("Impossible de contacter le serveur.");
       }
       
-      // On garde le log en console pour le debug technique
       console.error("Détail de l'erreur API:", responseData);
-      
     } finally {
       setSaving(false);
     }
@@ -163,7 +158,7 @@ export default function AdminCountries() {
         ...SummaryApi.delete_country,
         url: SummaryApi.delete_country.url.replace('{id}', String(deleting.id)),
       });
-      setCountries(prev => prev.filter(c => c.id !== deleting.id));
+      await fetchCountries();
       setDeleteModal(false);
     } catch (err: any) {
       const data = err?.response?.data;
@@ -209,8 +204,7 @@ export default function AdminCountries() {
         url: SummaryApi.create_country_subscription.url.replace('{country_id}', String(subCountry.id)),
       });
       await openSubscription(subCountry);
-      // Rafraîchir le statut dans la liste
-      setCountries(prev => prev.map(c => c.id === subCountry.id ? { ...c, has_valid_subscription: true } : c));
+      await fetchCountries();
     } catch (err: any) {
       const data = err?.response?.data;
       if (data?.detail) setSubError(String(data.detail));
@@ -353,7 +347,7 @@ export default function AdminCountries() {
       <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Supprimer le pays">
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Voulez-vous vraiment supprimer <span className="font-semibold text-gray-900 dark:text-white">{deleting?.name}</span> ? Cette action est irréversible.
+            Voulez-vous vraiment supprimer <span className="font-semibold text-gray-900 dark:text-white">{deleting?.name}</span> ? Cette action va simplement désactiver le pays et n'est pas irréversible.
           </p>
           {deleteError && (
             <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">{deleteError}</p>
