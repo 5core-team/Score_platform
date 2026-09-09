@@ -309,12 +309,12 @@ export default function AdminCountries() {
                   >
                     <Pencil size={15} />
                   </button>
-                  <button
+                  {/*<button
                     onClick={() => openDelete(c)}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={15} />
-                  </button>
+                  </button>*/}
                 </div>
               )
             },
@@ -343,7 +343,7 @@ export default function AdminCountries() {
         </div>
       </Modal>
 
-      {/* ── Modal suppression ── */}
+      {/* ── Modal suppression ── *
       <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)} title="Supprimer le pays">
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -357,7 +357,7 @@ export default function AdminCountries() {
             <Button onClick={handleDelete} loading={deleteLoading} fullWidth className="bg-red-500 hover:bg-red-600">Supprimer</Button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
 
       {/* ── Modal abonnement ── */}
       <Modal isOpen={subModal} onClose={() => setSubModal(false)} title={`Abonnement — ${subCountry?.name}`}>
