@@ -177,6 +177,12 @@ function EditDebtModal({ debt, sessionToken, onClose, onSuccess }: EditDebtModal
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
+    const amt = parseFloat(amount);
+    const deadlineAmt = parseFloat(deadlineAmount);
+    if (isNaN(amt) || amt <= 0 || isNaN(deadlineAmt) || deadlineAmt <= 0) {
+      setError('Les montants doivent être des nombres positifs.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -218,8 +224,8 @@ function EditDebtModal({ debt, sessionToken, onClose, onSuccess }: EditDebtModal
     <Modal isOpen={true} onClose={onClose} title="Modifier la dette">
       <div className="space-y-4 p-1">
         <div className="grid grid-cols-2 gap-3">
-          <Input label="Montant total" value={amount} onChange={e => setAmount(e.target.value)} type="number" />
-          <Input label="Montant/échéance" value={deadlineAmount} onChange={e => setDeadlineAmount(e.target.value)} type="number" />
+          <Input label="Montant total *" value={amount} onChange={e => setAmount(e.target.value)} placeholder="150000.00" type="number" min="0" step="0.01" />
+          <Input label="Montant / échéance *" value={deadlineAmount} onChange={e => setDeadlineAmount(e.target.value)} placeholder="12500.00" type="number" min="0" step="0.01" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Périodicité</label>
@@ -260,6 +266,15 @@ function EditRepaymentModal({ repayment, sessionToken, onClose, onSuccess }: Edi
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
+    const amt = parseFloat(amount);
+    if (!amount || !date) {
+      setError('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (isNaN(amt) || amt <= 0) {
+      setError('Le montant doit être un nombre positif.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -280,7 +295,7 @@ function EditRepaymentModal({ repayment, sessionToken, onClose, onSuccess }: Edi
   return (
     <Modal isOpen={true} onClose={onClose} title="Modifier le remboursement">
       <div className="space-y-4 p-1">
-        <Input label="Montant" value={amount} onChange={e => setAmount(e.target.value)} type="number" />
+        <Input label="Montant *" value={amount} onChange={e => setAmount(e.target.value)} placeholder="5000" type="number" min="0" step="0.01" />
         <Input label="Date" value={date} onChange={e => setDate(e.target.value)} type="date" />
         {error && <p className="text-sm text-red-500 flex items-center gap-1.5"><AlertCircle size={13} /> {error}</p>}
         <div className="flex gap-3 pt-2">
@@ -739,6 +754,10 @@ function CreateDebtView({ customerUuid, sessionToken, onBack, onSuccess }: Creat
       setError('Veuillez remplir tous les champs obligatoires.');
       return;
     }
+    if (parseFloat(amount) <= 0 || parseFloat(deadlineAmount) <= 0) {
+      setError('Les montants doivent être supérieurs à zéro.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -845,6 +864,8 @@ function CreateDebtView({ customerUuid, sessionToken, onBack, onSuccess }: Creat
               onChange={e => setAmount(e.target.value)}
               placeholder="150000.00"
               type="number"
+              min="0"
+              step="0.01"
             />
             <Input
               label="Montant / échéance *"
@@ -852,6 +873,8 @@ function CreateDebtView({ customerUuid, sessionToken, onBack, onSuccess }: Creat
               onChange={e => setDeadlineAmount(e.target.value)}
               placeholder="12500.00"
               type="number"
+              min="0"
+              step="0.01"
             />
           </div>
           <div>
@@ -919,6 +942,10 @@ function CreateRepaymentView({ customerUuid, sessionToken, preselectedDebt, onBa
   const handleSubmit = async () => {
     if (!selectedDebt || !amount || !date) {
       setError('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (parseFloat(amount) <= 0) {
+      setError('Le montant doit être supérieur à zéro.');
       return;
     }
     setLoading(true);
@@ -1050,6 +1077,8 @@ function CreateRepaymentView({ customerUuid, sessionToken, preselectedDebt, onBa
             onChange={e => setAmount(e.target.value)}
             placeholder="5000.00"
             type="number"
+            min="0"
+            step="0.01"
           />
           <Input
             label="Date *"
