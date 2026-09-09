@@ -257,7 +257,7 @@ function Hero() {
             fontWeight: 700, color: '#fff', lineHeight: 1.14, marginBottom: 30,
             letterSpacing: '-0.01em'
           }}>
-            Fait confiance<br />même à l'informel.
+            Faites confiance<br />même à l'informel.
           </h1>
 
 
@@ -567,10 +567,10 @@ function Security() {
           <div>
             <span className="label" style={{ display: 'block', marginBottom: 16 }}>Sécurité</span>
             <h2 style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, lineHeight: 1.14, marginBottom: 22, maxWidth: 560 }}>
-              Une infrastructure pensée pour des données sensibles.
+              Une infrastructure pensée pour des données sensibles et des régulations en vigueur.
             </h2>
             <p style={{ fontSize: 15, color: 'rgba(200,215,225,0.78)', lineHeight: 1.88, maxWidth: 480, fontWeight: 300 }}>
-              AfricaRisque n'est pas un service grand public. Chaque mécanisme est conçu pour répondre aux exigences strictes des institutions financières et des régulateurs.
+              AfricaRisque n'est pas un service grand public. Chaque mécanisme est conçu pour répondre aux exigences strictes des institutions financières.
             </p>
           </div>
         </div>
@@ -777,7 +777,7 @@ function Contact() {
               {[
                 { icon: MapPin, text: 'Cotonou, Bénin' },
                 { icon: Mail, text: 'contact@africarisque.com' },
-                { icon: Phone, text: '+229 62290099' },
+                { icon: Phone, text: '+229 0155573210' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                   <Icon size={13} style={{ color: 'var(--cyan)' }} />
@@ -820,7 +820,7 @@ function Contact() {
 
               <div>
                 <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5a7282', marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>Téléphone</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+229 62290099" disabled={isSubmitting || isSuccess} />
+                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+229 0155573210" disabled={isSubmitting || isSuccess} />
               </div>
 
               <div>
@@ -927,7 +927,7 @@ function Footer() {
             {[
               { icon: MapPin, text: 'Cotonou, Bénin' },
               { icon: Mail, text: 'contact@africarisque.com' },
-              { icon: Phone, text: '+229 62290099' },
+              { icon: Phone, text: '+229 0155573210' },
             ].map(({ icon: Icon, text }) => (
               <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <Icon size={12} style={{ color: 'var(--cyan)' }} />
@@ -997,7 +997,7 @@ export default function LandingPage() {
       />
       <Navbar />
       <Hero />
-      <TrustBand />
+      {/**<TrustBand />*/}
       <Solution />
       <Features />
       <Governance />

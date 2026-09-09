@@ -291,9 +291,9 @@ export default function CountryUsers() {
                   <button onClick={() => openEdit(u)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-cyan-600 transition-colors">
                     <Pencil size={14} />
                   </button>
-                  <button onClick={() => openDelete(u)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
+                  {/*<button onClick={() => openDelete(u)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors">
                     <Trash2 size={14} />
-                  </button>
+                  </button>*/}
                 </div>
               )},
             ]}
@@ -351,7 +351,15 @@ export default function CountryUsers() {
           <Input label="Nom complet *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Prénom Nom" />
           <div className="grid grid-cols-2 gap-3">
             <Input label="Téléphone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+229..." />
-            <Input label="NPI" value={form.npi} onChange={e => setForm(f => ({ ...f, npi: e.target.value }))} placeholder="Numéro NPI" />
+            <Input 
+              label="NPI" 
+              value={form.npi} 
+              onChange={e => {
+                const val = e.target.value.replace(/\D/g, ''); // Conserve uniquement les chiffres
+                setForm(f => ({ ...f, npi: val }));
+              }} 
+              placeholder="Numéro NPI (chiffres uniquement)" 
+            />
           </div>
           <Select
             label="Zone *"
